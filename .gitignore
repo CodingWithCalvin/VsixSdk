@@ -41,3 +41,6 @@ packages/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Local Claude settings
+CLAUDE.local.md

@@ -2,6 +2,42 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Critical Rules
+
+**These rules override all other instructions:**
+
+1. **NEVER commit directly to main** - Always create a feature branch and submit a pull request
+2. **Conventional commits** - Format: `type(scope): description`
+3. **GitHub Issues for TODOs** - Use `gh` CLI to manage issues, no local TODO files. Use conventional commit format for issue titles
+4. **Pull Request titles** - Use conventional commit format (same as commits)
+5. **Branch naming** - Use format: `type/scope/short-description` (e.g., `feat/sdk/version-sync`)
+6. **Working an issue** - Always create a new branch from an updated main branch
+7. **Check branch status before pushing** - Verify the remote tracking branch still exists. If a PR was merged/deleted, create a new branch from main instead
+
+---
+
+### GitHub CLI Commands
+
+```bash
+gh issue list                    # List open issues
+gh issue view <number>           # View details
+gh issue create --title "type(scope): description" --body "..."
+gh issue close <number>
+```
+
+### Conventional Commit Types
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance tasks |
+
+---
+
 ## Project Overview
 
 VsixCommunity.Sdk is an MSBuild SDK that enables SDK-style `.csproj` files for Visual Studio extension (VSIX) development. It wraps `Microsoft.NET.Sdk` and `Microsoft.VSSDK.BuildTools` to provide a modern project format for VS 2022+ extensions.
