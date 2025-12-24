@@ -11,8 +11,8 @@
     <Description>An MSBuild SDK for building Visual Studio extensions (VSIX) using SDK-style projects. Supports Visual Studio 2022 and later.</Description>
     <PackageTags>vsix;visualstudio;extension;sdk;msbuild</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/VsixCommunity/VsixCommunity.Sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VsixCommunity/VsixCommunity.Sdk</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 

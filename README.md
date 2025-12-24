@@ -172,7 +172,7 @@ Or disable specific categories:
 
 ```bash
 # Clone the repository
-git clone https://github.com/VsixCommunity/VsixCommunity.Sdk.git
+git clone https://github.com/CodingWithCalvin/VsixCommunity.Sdk.git
 cd VsixCommunity.Sdk
 
 # Build the SDK package
