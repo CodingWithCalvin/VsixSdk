@@ -1,0 +1,15 @@
+<Project Sdk="VsixCommunity.Sdk/1.0.0">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <Version>1.0.0</Version>
+    <RootNamespace>VsixExtension</RootNamespace>
+    <AssemblyName>VsixExtension</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

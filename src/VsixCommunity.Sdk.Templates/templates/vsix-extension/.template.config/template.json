@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "VsixCommunity",
+  "classifications": [
+    "Visual Studio",
+    "Extension",
+    "VSIX"
+  ],
+  "identity": "VsixCommunity.Sdk.Extension",
+  "name": "VSIX Extension (SDK-style)",
+  "shortName": "vsix",
+  "description": "A Visual Studio extension project using SDK-style format with VsixCommunity.Sdk",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "VsixExtension",
+  "preferNameDirectory": true,
+  "defaultName": "VsixExtension",
+  "symbols": {
+    "publisher": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyPublisher",
+      "replaces": "TEMPLATE_PUBLISHER",
+      "description": "Publisher name for the VSIX manifest"
+    },
+    "description": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "A Visual Studio extension",
+      "replaces": "TEMPLATE_DESCRIPTION",
+      "description": "Description for the extension"
+    },
+    "guid1": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "TEMPLATE_GUID1",
+      "parameters": {
+        "format": "D"
+      }
+    },
+    "guid2": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "TEMPLATE_GUID2",
+      "parameters": {
+        "format": "D"
+      }
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/.vs/**",
+            "**/*.user"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "VsixExtension.csproj"
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(OS != \"Windows_NT\")",
+      "description": "Manual instructions for non-Windows",
+      "manualInstructions": [
+        {
+          "text": "Note: Visual Studio extensions can only be built and debugged on Windows with Visual Studio 2022+."
+        }
+      ],
+      "actionId": "AC1156F7-BB77-4DB8-B28F-24EEBCCA1E5C",
+      "continueOnError": true
+    }
+  ]
+}
