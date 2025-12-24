@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+      publish_sdk:
+        description: 'Publish SDK package'
+        required: true
+        type: boolean
+        default: true
+      publish_templates:
+        description: 'Publish Templates package'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  changelog:
+    uses: CodingWithCalvin/.github/.github/workflows/generate-changelog.yml@main
+
+  release:
+    needs: changelog
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build SDK
+        run: dotnet build src/VsixCommunity.Sdk/VsixCommunity.Sdk.csproj -c Release -p:Version=${{ inputs.version }}
+
+      - name: Build Templates
+        run: dotnet pack src/VsixCommunity.Sdk.Templates/VsixCommunity.Sdk.Templates.csproj -c Release -p:Version=${{ inputs.version }}
+
+      - name: Publish SDK to NuGet
+        if: ${{ inputs.publish_sdk }}
+        run: dotnet nuget push artifacts/packages/VsixCommunity.Sdk.${{ inputs.version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Publish Templates to NuGet
+        if: ${{ inputs.publish_templates }}
+        run: dotnet nuget push artifacts/packages/VsixCommunity.Sdk.Templates.${{ inputs.version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body: ${{ needs.changelog.outputs.changelog }}
+          files: |
+            artifacts/packages/VsixCommunity.Sdk.${{ inputs.version }}.nupkg
+            artifacts/packages/VsixCommunity.Sdk.Templates.${{ inputs.version }}.nupkg

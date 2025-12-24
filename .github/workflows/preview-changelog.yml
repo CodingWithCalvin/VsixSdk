@@ -1,0 +1,27 @@
+name: Preview Changelog
+
+run-name: Preview release notes for next release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    name: Generate
+    uses: CodingWithCalvin/.github/.github/workflows/generate-changelog.yml@main
+    secrets: inherit
+
+  preview:
+    name: Display Preview
+    runs-on: ubuntu-latest
+    needs: generate
+
+    steps:
+    - name: Display changelog preview
+      run: |
+        echo "=========================================="
+        echo "CHANGELOG PREVIEW"
+        echo "=========================================="
+        echo ""
+        echo "${{ needs.generate.outputs.changelog }}"
+      shell: bash

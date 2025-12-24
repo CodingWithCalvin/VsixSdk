@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build SDK
+        run: dotnet build src/VsixCommunity.Sdk/VsixCommunity.Sdk.csproj -c Release --no-restore
+
+      - name: Build Templates
+        run: dotnet pack src/VsixCommunity.Sdk.Templates/VsixCommunity.Sdk.Templates.csproj -c Release --no-restore
+
+      - name: Build Sample Extension
+        run: dotnet build samples/SampleExtension/SampleExtension.csproj -c Release
+
+      - name: Upload SDK Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-package
+          path: artifacts/packages/VsixCommunity.Sdk.*.nupkg
+
+      - name: Upload Templates Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: templates-package
+          path: artifacts/packages/VsixCommunity.Sdk.Templates.*.nupkg
