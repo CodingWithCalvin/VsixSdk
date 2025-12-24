@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    For local development, we add VSIX SDK behavior on top of Microsoft.NET.Sdk.
+    The sample projects use Sdk="Microsoft.NET.Sdk" directly.
+  -->
+
+  <PropertyGroup>
+    <!-- Path to local SDK files -->
+    <VsixCommunitySdkRoot>$(MSBuildThisFileDirectory)..\src\VsixCommunity.Sdk\</VsixCommunitySdkRoot>
+
+    <!-- Signal that we're running in local development mode -->
+    <VsixCommunitySdkLocalDev>true</VsixCommunitySdkLocalDev>
+  </PropertyGroup>
+
+  <!-- Import VSIX-specific properties (after Microsoft.NET.Sdk.props is imported by the project) -->
+  <Import Project="$(VsixCommunitySdkRoot)Sdk\Sdk.Vsix.props" />
+
+</Project>

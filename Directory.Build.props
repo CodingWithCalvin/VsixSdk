@@ -1,0 +1,12 @@
+<Project>
+  <!--
+    Common properties for all projects in this repository
+  -->
+  <PropertyGroup>
+    <Authors>VSIX Community</Authors>
+    <Company>VSIX Community</Company>
+    <Copyright>Copyright (c) VSIX Community</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>

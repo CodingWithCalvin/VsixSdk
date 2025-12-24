@@ -1,0 +1,92 @@
+<Project>
+  <!--
+    VsixCommunity.Sdk - Sdk.Vsix.targets
+
+    VSIX-specific targets. Can be imported standalone or as part of the full SDK.
+  -->
+
+  <!--
+    Default item includes for VSIX projects
+    These can be disabled with EnableDefaultVsixItems=false
+  -->
+  <ItemGroup Condition="'$(EnableDefaultVsixItems)' != 'false' and '$(EnableDefaultItems)' != 'false'">
+
+    <!-- Include VSIX manifest files -->
+    <None Include="**/*.vsixmanifest"
+          Condition="'$(EnableDefaultVsixManifestItems)' != 'false'"
+          Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- Include VSCT files (Visual Studio Command Table) -->
+    <VSCTCompile Include="**/*.vsct"
+                 Condition="'$(EnableDefaultVsctItems)' != 'false'"
+                 Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
+      <ResourceName>$(VSCTResourceName)</ResourceName>
+    </VSCTCompile>
+
+    <!-- Include VSPackage resource files -->
+    <EmbeddedResource Include="**/VSPackage.resx"
+                      Condition="'$(EnableDefaultVSPackageResourceItems)' != 'false'"
+                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
+      <MergeWithCTO>true</MergeWithCTO>
+      <ManifestResourceName>VSPackage</ManifestResourceName>
+    </EmbeddedResource>
+
+    <!-- Include localized VSPackage resources -->
+    <EmbeddedResource Include="**/VSPackage.*.resx"
+                      Condition="'$(EnableDefaultVSPackageResourceItems)' != 'false'"
+                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);**/VSPackage.resx">
+      <MergeWithCTO>true</MergeWithCTO>
+      <DependentUpon>VSPackage.resx</DependentUpon>
+    </EmbeddedResource>
+
+  </ItemGroup>
+
+  <!--
+    Target to synchronize VSIX version with project version
+    This allows the Version property to drive the VSIX manifest version
+  -->
+  <Target Name="GetVsixVersion" Returns="$(VsixVersion)">
+    <PropertyGroup>
+      <VsixVersion Condition="'$(VsixVersion)' == ''">$(Version)</VsixVersion>
+      <VsixVersion Condition="'$(VsixVersion)' == ''">1.0.0</VsixVersion>
+    </PropertyGroup>
+  </Target>
+
+  <!--
+    Target to validate VSIX project configuration
+    Runs early in the build to catch common mistakes
+  -->
+  <Target Name="ValidateVsixConfiguration" BeforeTargets="BeforeBuild">
+    <!-- Warn if targeting x86 (VS 2022 is 64-bit) -->
+    <Warning Condition="'$(PlatformTarget)' == 'x86'"
+             Text="Visual Studio 2022 is 64-bit. Consider changing PlatformTarget to 'x64' or 'AnyCPU'." />
+
+    <!-- Warn if no VSIX manifest found -->
+    <Warning Condition="!Exists('$(MSBuildProjectDirectory)\source.extension.vsixmanifest') and !Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).vsixmanifest')"
+             Text="No .vsixmanifest file found. VSIX projects require a manifest file." />
+  </Target>
+
+  <!--
+    Import VSSDK targets if available
+    This is the key integration point with Microsoft.VSSDK.BuildTools
+  -->
+  <PropertyGroup>
+    <!-- Allow users to skip VSSDK import -->
+    <ImportVsSDKTargets Condition="'$(ImportVsSDKTargets)' == ''">true</ImportVsSDKTargets>
+
+    <!-- Path to VsSDK targets from the NuGet package -->
+    <VsSDKTargetsPath Condition="'$(VsSDKTargetsPath)' == '' and '$(VsSDKInstall)' != ''">$(VsSDKInstall)</VsSDKTargetsPath>
+  </PropertyGroup>
+
+  <!-- Import Microsoft.VsSDK.targets from VSSDK.BuildTools package -->
+  <Import Project="$(VsSDKTargetsPath)\Microsoft.VsSDK.targets"
+          Condition="'$(ImportVsSDKTargets)' == 'true' and '$(VsSDKTargetsPath)' != '' and Exists('$(VsSDKTargetsPath)\Microsoft.VsSDK.targets')" />
+
+  <!-- Fallback: Import from CustomAfterMicrosoftCSharpTargets if set -->
+  <Import Project="$(CustomAfterMicrosoftCSharpTargets)"
+          Condition="'$(ImportVsSDKTargets)' == 'true' and '$(CustomAfterMicrosoftCSharpTargets)' != '' and Exists('$(CustomAfterMicrosoftCSharpTargets)')" />
+
+</Project>

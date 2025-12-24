@@ -1,0 +1,10 @@
+<Project>
+  <!--
+    For local development, import the VSIX-specific targets.
+    These add VSIX build behavior without importing Microsoft.NET.Sdk again.
+  -->
+
+  <!-- Import VSIX-specific item includes and targets -->
+  <Import Project="$(VsixCommunitySdkRoot)Sdk\Sdk.Vsix.targets" />
+
+</Project>

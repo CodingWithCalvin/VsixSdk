@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- This project builds the SDK NuGet package -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <!-- Package metadata -->
+    <PackageId>VsixCommunity.Sdk</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>VSIX Community</Authors>
+    <Description>An MSBuild SDK for building Visual Studio extensions (VSIX) using SDK-style projects. Supports Visual Studio 2022 and later.</Description>
+    <PackageTags>vsix;visualstudio;extension;sdk;msbuild</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/VsixCommunity/VsixCommunity.Sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VsixCommunity/VsixCommunity.Sdk</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Package settings -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\artifacts\packages</PackageOutputPath>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <DevelopmentDependency>true</DevelopmentDependency>
+
+    <!-- Don't include build output in the package (this is an SDK, not a library) -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+    <!-- Disable all code generation since this project has no code -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!-- Include the SDK files in the package at the correct location -->
+  <ItemGroup>
+    <!-- The Sdk folder must be at the root of the package -->
+    <None Include="Sdk\**\*" Pack="true" PackagePath="Sdk" />
+
+    <!-- Include README at package root -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <!-- Create a minimal source file to satisfy the compiler -->
+  <ItemGroup>
+    <Compile Include="_Empty.cs" />
+  </ItemGroup>
+
+</Project>

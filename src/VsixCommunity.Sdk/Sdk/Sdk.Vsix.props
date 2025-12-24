@@ -1,0 +1,75 @@
+<Project>
+  <!--
+    VsixCommunity.Sdk - Sdk.Vsix.props
+
+    VSIX-specific properties. Can be imported standalone or as part of the full SDK.
+  -->
+
+  <PropertyGroup>
+    <!-- Identify that this SDK is in use -->
+    <UsingVsixCommunitySdk>true</UsingVsixCommunitySdk>
+
+    <!-- VS 2022+ is 64-bit only -->
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>
+
+    <!-- Default to .NET Framework 4.7.2 (minimum for VS 2022) -->
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net472</TargetFramework>
+
+    <!-- VSIX projects should not be packable as regular NuGet packages -->
+    <IsPackable Condition="'$(IsPackable)' == ''">false</IsPackable>
+
+    <!-- Disable deterministic builds by default (can cause issues with VSIX) -->
+    <Deterministic Condition="'$(Deterministic)' == ''">false</Deterministic>
+
+    <!-- Use codebase for assembly loading -->
+    <UseCodebase Condition="'$(UseCodebase)' == ''">true</UseCodebase>
+
+    <!-- Generate PkgDef file for VS registration -->
+    <GeneratePkgDefFile Condition="'$(GeneratePkgDefFile)' == ''">true</GeneratePkgDefFile>
+
+    <!-- Default VSCT resource name -->
+    <VSCTResourceName Condition="'$(VSCTResourceName)' == ''">Menus.ctmenu</VSCTResourceName>
+
+    <!-- Include symbols for debugging -->
+    <DebugSymbols Condition="'$(DebugSymbols)' == ''">true</DebugSymbols>
+    <DebugType Condition="'$(DebugType)' == ''">portable</DebugType>
+
+    <!-- Output type is always a library for VSIX -->
+    <OutputType>Library</OutputType>
+
+    <!-- Disable nullable by default for .NET Framework compatibility -->
+    <Nullable Condition="'$(Nullable)' == ''">disable</Nullable>
+
+    <!-- Enable implicit usings is off by default for Framework -->
+    <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- F5 Debugging Configuration -->
+  <PropertyGroup Condition="'$(EnableDefaultVsixDebugging)' != 'false'">
+    <StartAction Condition="'$(StartAction)' == ''">Program</StartAction>
+    <StartProgram Condition="'$(StartProgram)' == ''">$(DevEnvDir)devenv.exe</StartProgram>
+    <StartArguments Condition="'$(StartArguments)' == ''">$(VsixDebuggingArguments)</StartArguments>
+
+    <!-- Default debugging arguments -->
+    <VsixDebuggingArguments Condition="'$(VsixDebuggingArguments)' == ''">/rootSuffix Exp</VsixDebuggingArguments>
+  </PropertyGroup>
+
+  <!-- VSIX Version Configuration -->
+  <PropertyGroup>
+    <!-- Allow users to set VsixVersion explicitly, otherwise derive from Version -->
+    <VsixVersion Condition="'$(VsixVersion)' == '' and '$(Version)' != ''">$(Version)</VsixVersion>
+    <VsixVersion Condition="'$(VsixVersion)' == ''">1.0.0</VsixVersion>
+  </PropertyGroup>
+
+  <!--
+    Deploy extension to experimental instance during build (for development)
+    Only deploy when building inside Visual Studio (not with dotnet build)
+    Must be set in props so it's defined before VSSDK.BuildTools imports
+  -->
+  <PropertyGroup>
+    <DeployExtension Condition="'$(DeployExtension)' == '' and '$(Configuration)' == 'Debug' and '$(BuildingInsideVisualStudio)' == 'true'">true</DeployExtension>
+    <DeployExtension Condition="'$(DeployExtension)' == ''">false</DeployExtension>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    VsixCommunity.Sdk - Sdk.props
+
+    This file is imported at the BEGINNING of the project file.
+    It imports Microsoft.NET.Sdk and then adds VSIX-specific properties.
+  -->
+
+  <!-- Import Microsoft.NET.Sdk props first -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- Import VSIX-specific properties -->
+  <Import Project="$(MSBuildThisFileDirectory)Sdk.Vsix.props" />
+
+</Project>

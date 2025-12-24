@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    VsixCommunity.Sdk - Sdk.targets
+
+    This file is imported at the END of the project file.
+    It imports Microsoft.NET.Sdk targets and then adds VSIX-specific targets.
+  -->
+
+  <!-- Import Microsoft.NET.Sdk targets first -->
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- Import VSIX-specific targets -->
+  <Import Project="$(MSBuildThisFileDirectory)Sdk.Vsix.targets" />
+
+</Project>
