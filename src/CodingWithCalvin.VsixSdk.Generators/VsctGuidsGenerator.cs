@@ -160,9 +160,10 @@ public class VsctGuidsGenerator : IIncrementalGenerator
         {
             if (guidSymbol.IdSymbols.Count == 0)
             {
-                // Simple GUID constant
+                // Simple GUID constant with both string and Guid versions
                 sb.AppendLine($"        /// <summary>GUID: {{{guidSymbol.Value}}}</summary>");
-                sb.AppendLine($"        public static readonly Guid {guidSymbol.Name} = new Guid(\"{guidSymbol.Value}\");");
+                sb.AppendLine($"        public const string {guidSymbol.Name}String = \"{guidSymbol.Value}\";");
+                sb.AppendLine($"        public static readonly Guid {guidSymbol.Name} = new Guid({guidSymbol.Name}String);");
                 sb.AppendLine();
             }
             else
