@@ -206,6 +206,35 @@
   </Target>
 
   <!--
+    Generate launchSettings.json for F5 debugging
+    Only runs when building inside Visual Studio and the file doesn't exist
+    This configures VS to launch devenv.exe with the experimental instance
+  -->
+  <Target Name="GenerateLaunchSettings"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(BuildingInsideVisualStudio)' == 'true' and '$(DevEnvDir)' != '' and !Exists('$(MSBuildProjectDirectory)\Properties\launchSettings.json')">
+
+    <PropertyGroup>
+      <_LaunchSettingsContent><![CDATA[{
+  "profiles": {
+    "Start Experimental Instance": {
+      "commandName": "Executable",
+      "executablePath": "$(DevEnvDir)devenv.exe",
+      "commandLineArgs": "/rootSuffix Exp"
+    }
+  }
+}]]></_LaunchSettingsContent>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(MSBuildProjectDirectory)\Properties" Condition="!Exists('$(MSBuildProjectDirectory)\Properties')" />
+    <WriteLinesToFile File="$(MSBuildProjectDirectory)\Properties\launchSettings.json"
+                      Lines="$(_LaunchSettingsContent)"
+                      Overwrite="true" />
+
+    <Message Importance="high" Text="Generated Properties/launchSettings.json for F5 debugging" />
+  </Target>
+
+  <!--
     Import VSSDK targets if available
     This is the key integration point with Microsoft.VSSDK.BuildTools
   -->
