@@ -48,14 +48,15 @@ jobs:
 
       - name: NuGet login (OIDC)
         uses: nuget/login@v1
+        id: login
         with:
           user: ${{ secrets.NUGET_USERNAME }}
 
       - name: Publish SDK to NuGet
-        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.${{ steps.version.outputs.VERSION }}.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.${{ steps.version.outputs.VERSION }}.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Publish Templates to NuGet
-        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.Templates.${{ steps.version.outputs.VERSION }}.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.Templates.${{ steps.version.outputs.VERSION }}.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -74,7 +75,7 @@ jobs:
       post_text: |
         🚀 CodingWithCalvin.VsixSdk v${{ needs.release.outputs.version }} has been released!
 
-        Build modern SDK-style Visual Studio extensions with ease.
+        Build modern SDK-style Visual Studio extensions with ease!
 
         [📋 Release Notes](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.release.outputs.version }})
         [📦 NuGet](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
@@ -94,7 +95,7 @@ jobs:
       post_text: |
         🚀 CodingWithCalvin.VsixSdk v${{ needs.release.outputs.version }} has been released!
 
-        Build modern SDK-style Visual Studio extensions with ease.
+        Build modern SDK-style Visual Studio extensions with ease!
 
         📋 Release Notes: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.release.outputs.version }}
         📦 NuGet: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
