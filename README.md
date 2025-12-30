@@ -1,7 +1,7 @@
 # CodingWithCalvin.VsixSdk
 
-[![NuGet](https://img.shields.io/nuget/v/CodingWithCalvin.VsixSdk.svg)](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![NuGet](https://img.shields.io/nuget/v/CodingWithCalvin.VsixSdk?style=for-the-badge)](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 An MSBuild SDK that brings modern SDK-style `.csproj` files to Visual Studio extension development. No more XML soup! 🎉
 
