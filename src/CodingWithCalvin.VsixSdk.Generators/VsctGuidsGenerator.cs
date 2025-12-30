@@ -1,0 +1,205 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+
+namespace CodingWithCalvin.VsixSdk.Generators;
+
+/// <summary>
+/// Source generator that creates static classes with GUIDs and IDs from VSCT files.
+/// </summary>
+[Generator]
+public class VsctGuidsGenerator : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        // Find all .vsct files in AdditionalFiles
+        var vsctFiles = context.AdditionalTextsProvider
+            .Where(file => file.Path.EndsWith(".vsct", StringComparison.OrdinalIgnoreCase));
+
+        // Combine with compilation to get namespace
+        var compilationAndVscts = context.CompilationProvider
+            .Combine(vsctFiles.Collect());
+
+        context.RegisterSourceOutput(compilationAndVscts, (ctx, source) =>
+        {
+            var (compilation, vscts) = source;
+
+            foreach (var vsct in vscts)
+            {
+                GenerateVsctGuids(ctx, compilation, vsct);
+            }
+        });
+    }
+
+    private static void GenerateVsctGuids(
+        SourceProductionContext context,
+        Compilation compilation,
+        AdditionalText vsctFile)
+    {
+        var text = vsctFile.GetText(context.CancellationToken);
+        if (text == null) return;
+
+        var fileName = Path.GetFileNameWithoutExtension(vsctFile.Path);
+        var className = $"{fileName}Vsct";
+
+        try
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml(text.ToString());
+
+            var nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("vsct", "http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable");
+
+            // Extract all GuidSymbols
+            var guidSymbols = ExtractGuidSymbols(doc, nsmgr);
+
+            if (guidSymbols.Count == 0) return;
+
+            // Get namespace from compilation
+            var rootNamespace = compilation.AssemblyName ?? "GeneratedCode";
+
+            var source = GenerateSource(rootNamespace, className, fileName, guidSymbols);
+            context.AddSource($"{className}.g.cs", SourceText.From(source, Encoding.UTF8));
+        }
+        catch (Exception ex)
+        {
+            // Report diagnostic on error
+            var descriptor = new DiagnosticDescriptor(
+                "VSIXSDK002",
+                "Failed to parse VSCT file",
+                "Failed to parse VSCT file '{0}': {1}",
+                "VsixSdk",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+            context.ReportDiagnostic(Diagnostic.Create(descriptor, Location.None, vsctFile.Path, ex.Message));
+        }
+    }
+
+    private static List<GuidSymbol> ExtractGuidSymbols(XmlDocument doc, XmlNamespaceManager nsmgr)
+    {
+        var result = new List<GuidSymbol>();
+
+        // Try both namespaced and non-namespaced queries
+        var guidSymbolNodes = doc.SelectNodes("//vsct:GuidSymbol", nsmgr);
+        if (guidSymbolNodes == null || guidSymbolNodes.Count == 0)
+        {
+            guidSymbolNodes = doc.SelectNodes("//GuidSymbol");
+        }
+
+        if (guidSymbolNodes == null) return result;
+
+        foreach (XmlNode node in guidSymbolNodes)
+        {
+            var name = node.Attributes?["name"]?.Value;
+            var value = node.Attributes?["value"]?.Value;
+
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))
+                continue;
+
+            var guidSymbol = new GuidSymbol
+            {
+                Name = name!,
+                Value = value!.Trim('{', '}')
+            };
+
+            // Extract nested IDSymbols
+            var idSymbolNodes = node.SelectNodes("vsct:IDSymbol", nsmgr);
+            if (idSymbolNodes == null || idSymbolNodes.Count == 0)
+            {
+                idSymbolNodes = node.SelectNodes("IDSymbol");
+            }
+
+            if (idSymbolNodes != null)
+            {
+                foreach (XmlNode idNode in idSymbolNodes)
+                {
+                    var idName = idNode.Attributes?["name"]?.Value;
+                    var idValue = idNode.Attributes?["value"]?.Value;
+
+                    if (!string.IsNullOrEmpty(idName) && !string.IsNullOrEmpty(idValue))
+                    {
+                        guidSymbol.IdSymbols.Add(new IdSymbol { Name = idName!, Value = idValue! });
+                    }
+                }
+            }
+
+            result.Add(guidSymbol);
+        }
+
+        return result;
+    }
+
+    private static string GenerateSource(string rootNamespace, string className, string fileName, List<GuidSymbol> guidSymbols)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("//------------------------------------------------------------------------------");
+        sb.AppendLine("// <auto-generated>");
+        sb.AppendLine("//     This code was generated by CodingWithCalvin.VsixSdk from the VSCT file.");
+        sb.AppendLine("//     Changes to this file may cause incorrect behavior and will be lost if");
+        sb.AppendLine("//     the code is regenerated.");
+        sb.AppendLine("// </auto-generated>");
+        sb.AppendLine("//------------------------------------------------------------------------------");
+        sb.AppendLine();
+        sb.AppendLine("using System;");
+        sb.AppendLine();
+        sb.AppendLine($"namespace {rootNamespace}");
+        sb.AppendLine("{");
+        sb.AppendLine("    /// <summary>");
+        sb.AppendLine($"    /// GUIDs and IDs from {fileName}.vsct");
+        sb.AppendLine("    /// </summary>");
+        sb.AppendLine($"    internal static class {className}");
+        sb.AppendLine("    {");
+
+        foreach (var guidSymbol in guidSymbols)
+        {
+            if (guidSymbol.IdSymbols.Count == 0)
+            {
+                // Simple GUID constant
+                sb.AppendLine($"        /// <summary>GUID: {{{guidSymbol.Value}}}</summary>");
+                sb.AppendLine($"        public static readonly Guid {guidSymbol.Name} = new Guid(\"{guidSymbol.Value}\");");
+                sb.AppendLine();
+            }
+            else
+            {
+                // Nested class with GUID and IDs
+                sb.AppendLine($"        /// <summary>Command set GUID: {{{guidSymbol.Value}}}</summary>");
+                sb.AppendLine($"        public static class {guidSymbol.Name}");
+                sb.AppendLine("        {");
+                sb.AppendLine($"            public const string GuidString = \"{guidSymbol.Value}\";");
+                sb.AppendLine($"            public static readonly Guid Guid = new Guid(GuidString);");
+
+                foreach (var idSymbol in guidSymbol.IdSymbols)
+                {
+                    sb.AppendLine($"            public const int {idSymbol.Name} = {idSymbol.Value};");
+                }
+
+                sb.AppendLine("        }");
+                sb.AppendLine();
+            }
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    private class GuidSymbol
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public List<IdSymbol> IdSymbols { get; } = new List<IdSymbol>();
+    }
+
+    private class IdSymbol
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
+}

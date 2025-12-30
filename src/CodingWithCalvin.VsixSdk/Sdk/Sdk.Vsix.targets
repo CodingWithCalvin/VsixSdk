@@ -11,14 +11,6 @@
   -->
   <ItemGroup Condition="'$(EnableDefaultVsixItems)' != 'false' and '$(EnableDefaultItems)' != 'false'">
 
-    <!-- Include VSIX manifest files -->
-    <None Include="**/*.vsixmanifest"
-          Condition="'$(EnableDefaultVsixManifestItems)' != 'false'"
-          Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
     <!-- Include VSCT files (Visual Studio Command Table) -->
     <VSCTCompile Include="**/*.vsct"
                  Condition="'$(EnableDefaultVsctItems)' != 'false'"
@@ -44,15 +36,159 @@
 
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- Detect the source manifest location -->
+    <_SourceVsixManifestPath Condition="'$(_SourceVsixManifestPath)' == '' and Exists('$(MSBuildProjectDirectory)\source.extension.vsixmanifest')">$(MSBuildProjectDirectory)\source.extension.vsixmanifest</_SourceVsixManifestPath>
+    <_SourceVsixManifestPath Condition="'$(_SourceVsixManifestPath)' == '' and Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).vsixmanifest')">$(MSBuildProjectDirectory)\$(MSBuildProjectName).vsixmanifest</_SourceVsixManifestPath>
+  </PropertyGroup>
+
   <!--
-    Target to synchronize VSIX version with project version
-    This allows the Version property to drive the VSIX manifest version
+    Add VSIX manifest and VSCT files as AdditionalFiles for source generators.
+    The generators use these to produce VsixInfo.g.cs and *Vsct.g.cs files.
   -->
-  <Target Name="GetVsixVersion" Returns="$(VsixVersion)">
+  <ItemGroup>
+    <!-- Add VSIX manifest for VsixInfoGenerator -->
+    <AdditionalFiles Include="$(_SourceVsixManifestPath)" Condition="'$(_SourceVsixManifestPath)' != '' and Exists('$(_SourceVsixManifestPath)')" />
+
+    <!-- Add VSCT files for VsctGuidsGenerator -->
+    <AdditionalFiles Include="@(VSCTCompile)" />
+
+    <!-- Keep source manifest visible in Solution Explorer for editing -->
+    <None Include="$(_SourceVsixManifestPath)" Condition="'$(_SourceVsixManifestPath)' != '' and Exists('$(_SourceVsixManifestPath)')">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+
+  <!--
+    Version override support
+    Usage: dotnet build -p:SetVsixVersion=2.5.0
+
+    When SetVsixVersion is specified on the command line:
+    1. Updates the source manifest with the new version
+    2. Spawns a new MSBuild process that re-evaluates and builds with the updated manifest
+    3. Creates a sentinel file to prevent the outer build from overwriting the VSIX
+
+    This is necessary because VSSDK reads the manifest during evaluation phase,
+    before any targets run. A new process re-evaluates and reads the updated manifest.
+
+    Note: Use SetVsixVersion (not VsixVersion) because VsixVersion has a default value.
+  -->
+  <PropertyGroup>
+    <_VsixVersionSentinel>$(IntermediateOutputPath)_vsix_version_build.sentinel</_VsixVersionSentinel>
+  </PropertyGroup>
+
+  <Target Name="BuildWithVsixVersion"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(SetVsixVersion)' != '' and '$(_VsixVersionBuildInProgress)' != 'true' and '$(_SourceVsixManifestPath)' != '' and Exists('$(_SourceVsixManifestPath)')">
+
     <PropertyGroup>
-      <VsixVersion Condition="'$(VsixVersion)' == ''">$(Version)</VsixVersion>
-      <VsixVersion Condition="'$(VsixVersion)' == ''">1.0.0</VsixVersion>
+      <_VsixNsForPoke>&lt;Namespace Prefix='vsix' Uri='http://schemas.microsoft.com/developer/vsx-schema/2011'/&gt;</_VsixNsForPoke>
     </PropertyGroup>
+
+    <!-- Update the source manifest -->
+    <XmlPoke XmlInputPath="$(_SourceVsixManifestPath)"
+             Query="/vsix:PackageManifest/vsix:Metadata/vsix:Identity/@Version"
+             Value="$(SetVsixVersion)"
+             Namespaces="$(_VsixNsForPoke)" />
+
+    <Message Importance="high" Text="Updated VSIX manifest version to $(SetVsixVersion)" />
+
+    <!-- Create sentinel to mark that inner build will produce the correct VSIX -->
+    <MakeDir Directories="$(IntermediateOutputPath)" Condition="!Exists('$(IntermediateOutputPath)')" />
+    <WriteLinesToFile File="$(_VsixVersionSentinel)" Lines="$(SetVsixVersion)" Overwrite="true" />
+
+    <!-- Spawn new MSBuild process that will re-evaluate and read the updated manifest -->
+    <Exec Command="dotnet build &quot;$(MSBuildProjectFullPath)&quot; -c $(Configuration) -p:_VsixVersionBuildInProgress=true --no-restore"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <Message Importance="high" Text="VSIX build with version $(SetVsixVersion) completed." />
+  </Target>
+
+  <!-- Skip CreateVsixContainer when sentinel exists (outer build - inner build already created VSIX) -->
+  <Target Name="_SkipVsixContainerForOuterBuild"
+          BeforeTargets="CreateVsixContainer"
+          Condition="'$(SetVsixVersion)' != '' and '$(_VsixVersionBuildInProgress)' != 'true' and Exists('$(_VsixVersionSentinel)')">
+    <Message Importance="high" Text="Skipping VSIX creation in outer build (already created by inner build)." />
+    <!-- Clear the inputs so CreateVsixContainer has nothing to do -->
+    <ItemGroup>
+      <VSIXSourceItem Remove="@(VSIXSourceItem)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Clean up sentinel after outer build completes -->
+  <Target Name="_CleanupVsixVersionSentinel"
+          AfterTargets="Build"
+          Condition="'$(SetVsixVersion)' != '' and '$(_VsixVersionBuildInProgress)' != 'true' and Exists('$(_VsixVersionSentinel)')">
+    <Delete Files="$(_VsixVersionSentinel)" />
+  </Target>
+
+  <!--
+    Generate Publish Manifest (publish.manifest.json)
+    Creates a VS Marketplace publish manifest from project properties and VSIX manifest
+  -->
+  <Target Name="GeneratePublishManifest"
+          AfterTargets="Build"
+          Condition="'$(GeneratePublishManifest)' == 'true' and '$(_SourceVsixManifestPath)' != '' and Exists('$(_SourceVsixManifestPath)')">
+
+    <PropertyGroup>
+      <_VsixNsForPeek>&lt;Namespace Prefix='vsix' Uri='http://schemas.microsoft.com/developer/vsx-schema/2011'/&gt;</_VsixNsForPeek>
+    </PropertyGroup>
+
+    <!-- Read Publisher from VSIX manifest -->
+    <XmlPeek XmlInputPath="$(_SourceVsixManifestPath)"
+             Query="/vsix:PackageManifest/vsix:Metadata/vsix:Identity/@Publisher"
+             Namespaces="$(_VsixNsForPeek)">
+      <Output TaskParameter="Result" PropertyName="_VsixPublisher" />
+    </XmlPeek>
+
+    <!-- Read MoreInfo (repo URL) from VSIX manifest -->
+    <XmlPeek XmlInputPath="$(_SourceVsixManifestPath)"
+             Query="/vsix:PackageManifest/vsix:Metadata/vsix:MoreInfo/text()"
+             Namespaces="$(_VsixNsForPeek)">
+      <Output TaskParameter="Result" PropertyName="_VsixMoreInfo" />
+    </XmlPeek>
+
+    <!-- Read Tags (categories) from VSIX manifest -->
+    <XmlPeek XmlInputPath="$(_SourceVsixManifestPath)"
+             Query="/vsix:PackageManifest/vsix:Metadata/vsix:Tags/text()"
+             Namespaces="$(_VsixNsForPeek)">
+      <Output TaskParameter="Result" PropertyName="_VsixTags" />
+    </XmlPeek>
+
+    <!-- Convert comma-separated tags to JSON array format -->
+    <PropertyGroup>
+      <!-- First trim spaces after commas, then replace commas with JSON array separators -->
+      <_VsixTagsNormalized>$(_VsixTags.Replace(', ', ','))</_VsixTagsNormalized>
+      <_CategoriesJson>$(_VsixTagsNormalized.Replace(',', '", "'))</_CategoriesJson>
+      <_CategoriesJson>"$(_CategoriesJson)"</_CategoriesJson>
+      <_QnAValue Condition="'$(VsixPublishQnA)' == 'true'">true</_QnAValue>
+      <_QnAValue Condition="'$(VsixPublishQnA)' != 'true'">false</_QnAValue>
+      <_RepoLine Condition="'$(_VsixMoreInfo)' != ''">,
+  "repo": "$(_VsixMoreInfo)"</_RepoLine>
+      <_RepoLine Condition="'$(_VsixMoreInfo)' == ''"></_RepoLine>
+    </PropertyGroup>
+
+    <!-- Write the publish manifest JSON -->
+    <PropertyGroup>
+      <_PublishManifestContent><![CDATA[{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": [
+    $(_CategoriesJson)
+  ],
+  "identity": {
+    "internalName": "$(MSBuildProjectName)"
+  },
+  "overview": "$(VsixPublishOverview)",
+  "publisher": "$(_VsixPublisher)",
+  "qna": $(_QnAValue)$(_RepoLine)
+}]]></_PublishManifestContent>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(MSBuildProjectDirectory)\publish.manifest.json"
+                      Lines="$(_PublishManifestContent)"
+                      Overwrite="true" />
+
+    <Message Importance="high" Text="Generated publish manifest: $(MSBuildProjectDirectory)\publish.manifest.json" />
   </Target>
 
   <!--
@@ -62,7 +198,7 @@
   <Target Name="ValidateVsixConfiguration" BeforeTargets="BeforeBuild">
     <!-- Warn if targeting x86 (VS 2022 is 64-bit) -->
     <Warning Condition="'$(PlatformTarget)' == 'x86'"
-             Text="Visual Studio 2022 is 64-bit. Consider changing PlatformTarget to 'x64' or 'AnyCPU'." />
+             Text="Visual Studio 2022 is 64-bit. Consider changing PlatformTarget to 'AnyCPU'." />
 
     <!-- Warn if no VSIX manifest found -->
     <Warning Condition="!Exists('$(MSBuildProjectDirectory)\source.extension.vsixmanifest') and !Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).vsixmanifest')"
@@ -88,5 +224,6 @@
   <!-- Fallback: Import from CustomAfterMicrosoftCSharpTargets if set -->
   <Import Project="$(CustomAfterMicrosoftCSharpTargets)"
           Condition="'$(ImportVsSDKTargets)' == 'true' and '$(CustomAfterMicrosoftCSharpTargets)' != '' and Exists('$(CustomAfterMicrosoftCSharpTargets)')" />
+
 
 </Project>

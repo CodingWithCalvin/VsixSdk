@@ -46,3 +46,8 @@ Desktop.ini
 CLAUDE.local.md
 
 .claude/
+
+# Generated files from SDK
+Generated/
+VsixInfo.g.cs
+*Vsct.g.cs

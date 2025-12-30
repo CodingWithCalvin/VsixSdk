@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <Platform>AnyCPU</Platform>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <Version>1.0.0</Version>
     <RootNamespace>VsixExtension</RootNamespace>
     <AssemblyName>VsixExtension</AssemblyName>

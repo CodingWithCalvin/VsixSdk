@@ -12,25 +12,56 @@
   "description": "A Visual Studio extension project using SDK-style format with CodingWithCalvin.VsixSdk",
   "tags": {
     "language": "C#",
-    "type": "project"
+    "type": "solution"
   },
   "sourceName": "VsixExtension",
   "preferNameDirectory": true,
   "defaultName": "VsixExtension",
   "symbols": {
+    "extensionName": {
+      "type": "parameter",
+      "datatype": "string",
+      "displayName": "Extension Name",
+      "description": "The display name shown in Visual Studio's extension manager (defaults to project name)",
+      "defaultValue": "",
+      "replaces": "TEMPLATE_EXTENSION_NAME",
+      "isRequired": false
+    },
     "publisher": {
       "type": "parameter",
       "datatype": "string",
+      "displayName": "Publisher",
+      "description": "Publisher name for the VSIX manifest (shown in extension manager)",
       "defaultValue": "MyPublisher",
       "replaces": "TEMPLATE_PUBLISHER",
-      "description": "Publisher name for the VSIX manifest"
+      "isRequired": false
     },
     "description": {
       "type": "parameter",
       "datatype": "string",
+      "displayName": "Description",
+      "description": "Description of what your extension does",
       "defaultValue": "A Visual Studio extension",
       "replaces": "TEMPLATE_DESCRIPTION",
-      "description": "Description for the extension"
+      "isRequired": false
+    },
+    "tags": {
+      "type": "parameter",
+      "datatype": "string",
+      "displayName": "Tags",
+      "description": "Comma-separated tags for discoverability (e.g., productivity, editor)",
+      "defaultValue": "extension",
+      "replaces": "TEMPLATE_TAGS",
+      "isRequired": false
+    },
+    "extensionNameResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "extensionName",
+        "fallbackVariableName": "name"
+      },
+      "replaces": "TEMPLATE_EXTENSION_NAME_RESOLVED"
     },
     "guid1": {
       "type": "generated",
@@ -65,7 +96,7 @@
   ],
   "primaryOutputs": [
     {
-      "path": "VsixExtension.csproj"
+      "path": "VsixExtension.slnx"
     }
   ],
   "postActions": [
