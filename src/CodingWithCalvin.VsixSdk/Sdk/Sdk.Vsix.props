@@ -100,25 +100,6 @@
   </PropertyGroup>
 
   <!--
-    Publish Manifest Configuration (publish.manifest.json)
-    Used for publishing to VS Marketplace
-    Most values are extracted from the VSIX manifest automatically:
-    - publisher: from Identity/@Publisher
-    - categories: from Tags element
-    - repo: from MoreInfo element
-  -->
-  <PropertyGroup>
-    <!-- Enable/disable publish manifest generation -->
-    <GeneratePublishManifest Condition="'$(GeneratePublishManifest)' == ''">true</GeneratePublishManifest>
-
-    <!-- Path to README for marketplace overview (relative to manifest) -->
-    <VsixPublishOverview Condition="'$(VsixPublishOverview)' == ''">README.md</VsixPublishOverview>
-
-    <!-- Enable Q&A on marketplace listing -->
-    <VsixPublishQnA Condition="'$(VsixPublishQnA)' == ''">true</VsixPublishQnA>
-  </PropertyGroup>
-
-  <!--
     Deploy extension to experimental instance during build (for development)
     Only deploy when building inside Visual Studio (not with dotnet build)
     Must be set in props so it's defined before VSSDK.BuildTools imports
