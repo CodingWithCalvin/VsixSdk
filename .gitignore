@@ -44,3 +44,5 @@ Desktop.ini
 
 # Local Claude settings
 CLAUDE.local.md
+
+.claude/
