@@ -1,48 +1,71 @@
-# 🚀 CodingWithCalvin.VsixSdk
+# CodingWithCalvin.VsixSdk
 
 [![NuGet](https://img.shields.io/nuget/v/CodingWithCalvin.VsixSdk.svg)](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ✨ **Finally!** Modern SDK-style projects for Visual Studio extensions!
+An MSBuild SDK that brings modern SDK-style `.csproj` files to Visual Studio extension development. No more XML soup!
 
-An MSBuild SDK that brings the clean, modern `.csproj` format to VSIX development. No more XML soup! 🎉
+## Why This Exists
 
----
-
-## 🤔 Why This Exists
-
-Visual Studio extension projects are stuck in 2010. They still use the old, verbose project format while the rest of .NET has moved on to beautiful SDK-style projects.
+Visual Studio extension projects are stuck in the past. They still use the old, verbose project format while the rest of .NET has moved on to clean SDK-style projects.
 
 **This SDK fixes that.**
 
-Write clean `.csproj` files. Get all the modern tooling. Ship fully functional VSIX packages. 💪
+Write clean `.csproj` files. Get source generators for compile-time constants. Ship fully functional VSIX packages.
 
----
+## Getting Started
 
-## 📦 Installation
+### Using the Template (Recommended)
 
+The easiest way to create a new VSIX project is with the dotnet template:
+
+```bash
+# Install the template
+dotnet new install CodingWithCalvin.VsixSdk.Templates
+
+# Create a new extension
+dotnet new vsix -n MyExtension --publisher "Your Name" --description "My awesome extension"
+
+# Build it
+cd MyExtension
+dotnet build
 ```
-dotnet add package CodingWithCalvin.VsixSdk
+
+#### Template Parameters
+
+| Parameter | Short | Description | Default |
+|-----------|-------|-------------|---------|
+| `--extensionName` | `-e` | Display name in VS extension manager | Project name |
+| `--publisher` | `-p` | Publisher name in VSIX manifest | MyPublisher |
+| `--description` | `-de` | Extension description | A Visual Studio extension |
+| `--tags` | `-ta` | Comma-separated tags for discoverability | extension |
+
+**Examples:**
+
+```bash
+# Basic - uses project name as display name
+dotnet new vsix -n MyExtension
+
+# With custom extension name (different from project name)
+dotnet new vsix -n MyExtension.Vsix --extensionName "My Cool Extension"
+
+# With all parameters
+dotnet new vsix -n MyExtension \
+  --extensionName "My Cool Extension" \
+  --publisher "Acme Corp" \
+  --description "Adds productivity features to Visual Studio" \
+  --tags "productivity, tools, editor"
 ```
 
-Or reference it directly in your project file (recommended):
+### Manual Setup
 
-```xml
-<Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
-```
-
----
-
-## ⚡ Quick Start
-
-### 1️⃣ Create the Project File
+If you prefer to set up manually, create a `.csproj` file:
 
 ```xml
 <Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,17 +76,13 @@ Or reference it directly in your project file (recommended):
 </Project>
 ```
 
-That's it. Seriously. 😎
-
-### 2️⃣ Create the VSIX Manifest
-
-Create `source.extension.vsixmanifest`:
+Then create `source.extension.vsixmanifest`:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="MyExtension.YOUR-GUID-HERE" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="Your Name" />
+    <Identity Id="MyExtension.YOUR-GUID-HERE" Version="1.0.0" Language="en-US" Publisher="Your Name" />
     <DisplayName>My Extension</DisplayName>
     <Description>Description of your extension</Description>
     <Tags>your, tags, here</Tags>
@@ -85,81 +104,158 @@ Create `source.extension.vsixmanifest`:
 </PackageManifest>
 ```
 
-> 💡 **Pro tip:** The `Version="|%CurrentProject%;GetVsixVersion|"` syntax automatically syncs with your project's `Version` property!
+## Features
 
-### 3️⃣ Create Your Package Class
+### Source Generators
+
+The SDK includes source generators that create compile-time constants from your manifest files.
+
+#### VsixInfo - VSIX Manifest Constants
+
+A `VsixInfo` class is automatically generated from your `source.extension.vsixmanifest`:
 
 ```csharp
-using System;
-using System.Runtime.InteropServices;
-using System.Threading;
-using Microsoft.VisualStudio.Shell;
-using Task = System.Threading.Tasks.Task;
-
-namespace MyExtension
+// Auto-generated from your manifest
+public static class VsixInfo
 {
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid("YOUR-GUID-HERE")]
-    public sealed class MyExtensionPackage : AsyncPackage
-    {
-        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
-            await base.InitializeAsync(cancellationToken, progress);
-            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+    public const string Id = "MyExtension.a1b2c3d4-...";
+    public const string Version = "1.0.0";
+    public const string Publisher = "Your Name";
+    public const string DisplayName = "My Extension";
+    public const string Description = "Description of your extension";
+    public const string Tags = "your, tags, here";
+    // ... and more
+}
+```
 
-            // Your initialization code here 🎨
-        }
+Use it in your code:
+
+```csharp
+// Display version in your extension
+MessageBox.Show($"Version: {VsixInfo.Version}");
+
+// Use in attributes
+[Guid(VsixInfo.Id)]
+public sealed class MyPackage : AsyncPackage { }
+```
+
+#### VSCT GUIDs and IDs
+
+If you have `.vsct` files, constants are generated for your GUIDs and command IDs:
+
+```csharp
+// Auto-generated from MyCommands.vsct
+public static class MyCommandsVsct
+{
+    public static readonly Guid guidMyPackage = new Guid("...");
+
+    public static class guidMyCommandSet
+    {
+        public const string GuidString = "...";
+        public static readonly Guid Guid = new Guid(GuidString);
+        public const int MyCommandId = 0x0100;
+        public const int MyMenuGroup = 0x1020;
     }
 }
 ```
 
-### 4️⃣ Build and Debug
+#### Generated Files Location
 
-| Action | Command |
-|--------|---------|
-| 🔨 Build | `dotnet build` or build in Visual Studio |
-| 🐛 Debug | Press **F5** → launches the Experimental Instance |
+Generated source files are written to the `Generated/` folder in your project and are visible in Solution Explorer. They're marked as auto-generated so you know not to edit them directly.
 
----
+### Version Override
 
-## ✅ Features
+Update the VSIX version at build time without manually editing the manifest:
 
-| Feature | Description |
-|---------|-------------|
-| 📝 **SDK-style projects** | Clean, minimal `.csproj` files |
-| 🐛 **F5 debugging** | Works out of the box with VS Experimental Instance |
-| 📁 **Auto-inclusion** | VSCT, VSIX manifests, and VSPackage resources included automatically |
-| 🔄 **Version sync** | VSIX version derived from project `Version` property |
-| ⚙️ **Sensible defaults** | Correct settings for VS 2022+ (x64, .NET Framework 4.7.2+) |
-| 🚀 **Smart deployment** | Only deploys to Experimental Instance when building in VS |
+```bash
+dotnet build -p:SetVsixVersion=2.0.0
+```
 
----
+This updates the `source.extension.vsixmanifest` file with the new version, rebuilds with the correct version in all outputs (including the generated `VsixInfo.Version` constant), and produces the VSIX with the specified version.
 
-## 📋 Requirements
+This is useful for CI/CD pipelines:
 
-- 🖥️ Visual Studio 2022 or later
-- 🎯 .NET Framework 4.7.2+ target framework
+```yaml
+# GitHub Actions example
+- name: Build Release
+  run: dotnet build -c Release -p:SetVsixVersion=${{ github.ref_name }}
+```
 
----
+### Auto-Inclusion
 
-## 🔧 Configuration
+The SDK automatically includes common VSIX files:
+
+- `*.vsct` files as `VSCTCompile` items
+- `VSPackage.resx` files with proper metadata
+- `source.extension.vsixmanifest` as an `AdditionalFile` for source generators
+
+### F5 Debugging
+
+Press F5 to launch the Visual Studio Experimental Instance with your extension loaded. This works automatically when:
+- Building in Debug configuration
+- Building inside Visual Studio (not `dotnet build`)
+
+### Smart Deployment
+
+Extensions are only deployed to the Experimental Instance when building inside Visual Studio. This prevents errors when building from the command line.
+
+### Publish Manifest Generation
+
+The SDK automatically generates a `publish.manifest.json` file for publishing to the VS Marketplace. All values are extracted from your VSIX manifest:
+
+```json
+{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": [
+    "your", "tags", "here"
+  ],
+  "identity": {
+    "internalName": "MyExtension"
+  },
+  "overview": "README.md",
+  "publisher": "Your Name",
+  "qna": true,
+  "repo": "https://github.com/you/your-repo"
+}
+```
+
+| JSON Field | Source |
+|------------|--------|
+| `publisher` | `Identity/@Publisher` in VSIX manifest |
+| `categories` | `Tags` element in VSIX manifest |
+| `repo` | `MoreInfo` element in VSIX manifest |
+| `internalName` | Project name |
+| `overview` | Configurable via `VsixPublishOverview` property (default: `README.md`) |
+| `qna` | Configurable via `VsixPublishQnA` property (default: `true`) |
+
+To disable publish manifest generation:
+
+```xml
+<PropertyGroup>
+  <GeneratePublishManifest>false</GeneratePublishManifest>
+</PropertyGroup>
+```
+
+## Configuration
 
 ### Properties
 
 | Property | Default | Description |
 |----------|---------|-------------|
 | `TargetFramework` | `net472` | Target framework (must be .NET Framework 4.7.2+) |
-| `Platform` | `x64` | Target platform (VS 2022+ is 64-bit) |
-| `UseCodebase` | `true` | Use codebase for assembly loading |
+| `Platform` | `AnyCPU` | Target platform |
 | `GeneratePkgDefFile` | `true` | Generate .pkgdef registration file |
-| `VsixVersion` | `$(Version)` | VSIX manifest version |
 | `DeployExtension` | `true`* | Deploy to experimental instance |
 | `EnableDefaultVsixItems` | `true` | Auto-include VSIX-related files |
-| `EnableDefaultVsixDebugging` | `true` | Configure F5 debugging |
+| `EmitCompilerGeneratedFiles` | `true` | Write generated source files to disk |
+| `CompilerGeneratedFilesOutputPath` | `Generated/` | Location for generated source files |
+| `GeneratePublishManifest` | `true` | Generate `publish.manifest.json` for VS Marketplace |
+| `VsixPublishOverview` | `README.md` | Path to README for marketplace overview |
+| `VsixPublishQnA` | `true` | Enable Q&A on marketplace listing |
 
 > \* Only when `Configuration=Debug` AND building inside Visual Studio
 
-### 🎛️ Disabling Auto-Inclusion
+### Disabling Auto-Inclusion
 
 Take full control over which files are included:
 
@@ -174,12 +270,11 @@ Or disable specific categories:
 ```xml
 <PropertyGroup>
   <EnableDefaultVsctItems>false</EnableDefaultVsctItems>
-  <EnableDefaultVsixManifestItems>false</EnableDefaultVsixManifestItems>
   <EnableDefaultVSPackageResourceItems>false</EnableDefaultVSPackageResourceItems>
 </PropertyGroup>
 ```
 
-### 🐛 Custom Debugging Arguments
+### Custom Debugging Arguments
 
 ```xml
 <PropertyGroup>
@@ -187,21 +282,122 @@ Or disable specific categories:
 </PropertyGroup>
 ```
 
----
+## Migrating from Legacy Projects
 
-## 🔄 Migration from Legacy Projects
+If you have an existing non-SDK style VSIX project, follow these steps to convert it.
 
-Migrating from the old project format? Here's how:
+### Step 1: Back Up Your Project
 
-1. 📝 Replace your old `.csproj` content with the SDK-style format above
-2. 🗑️ Remove unnecessary `<Import>` statements — the SDK handles them
-3. 📁 Keep your `source.extension.vsixmanifest`, `.vsct`, and resource files
-4. ➕ Add `<ProductArchitecture>amd64</ProductArchitecture>` to your manifest for VS 2022+
-5. 🔨 Build and test!
+Before making changes, ensure your project is committed to source control or backed up.
 
----
+### Step 2: Replace the .csproj Content
 
-## 🏗️ Building from Source
+Replace your entire `.csproj` file with the SDK-style format:
+
+**Before (Legacy):**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('...')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{YOUR-GUID}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MyExtension</RootNamespace>
+    <AssemblyName>MyExtension</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <!-- ... many more lines ... -->
+  </PropertyGroup>
+  <!-- ... hundreds of lines of XML ... -->
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
+</Project>
+```
+
+**After (SDK-style):**
+```xml
+<Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>MyExtension</RootNamespace>
+    <AssemblyName>MyExtension</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
+```
+
+### Step 3: Update the VSIX Manifest for VS 2022+
+
+Add `<ProductArchitecture>amd64</ProductArchitecture>` to each `InstallationTarget`:
+
+```xml
+<Installation>
+  <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
+    <ProductArchitecture>amd64</ProductArchitecture>
+  </InstallationTarget>
+  <!-- Repeat for Professional, Enterprise if needed -->
+</Installation>
+```
+
+### Step 4: Remove Unnecessary Files
+
+Delete these files if they exist (the SDK handles them automatically):
+- `packages.config` - Use `PackageReference` instead
+- `Properties/AssemblyInfo.cs` - SDK generates this automatically
+- `app.config` - Usually not needed
+
+### Step 5: Update Package References
+
+Convert from `packages.config` to `PackageReference` format in your `.csproj`:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
+  <!-- Add other packages your extension uses -->
+</ItemGroup>
+```
+
+### Step 6: Handle VSCT Files
+
+If you have `.vsct` files, they're automatically included. Remove any explicit `<VSCTCompile>` items unless you need custom metadata.
+
+### Step 7: Build and Test
+
+```bash
+dotnet build
+```
+
+Fix any errors that arise. Common issues:
+- **Missing types**: Add the appropriate `PackageReference`
+- **Duplicate files**: Remove explicit includes that conflict with auto-inclusion
+- **Resource files**: Ensure `VSPackage.resx` files are in the project
+
+### Migration Checklist
+
+- [ ] Replaced `.csproj` with SDK-style format
+- [ ] Added `<ProductArchitecture>amd64</ProductArchitecture>` to manifest
+- [ ] Converted `packages.config` to `PackageReference`
+- [ ] Removed `Properties/AssemblyInfo.cs`
+- [ ] Removed explicit file includes (now auto-included)
+- [ ] Updated version range to `[17.0, 19.0)` for VS 2022+
+- [ ] Build succeeds with `dotnet build`
+- [ ] F5 debugging works in Visual Studio
+
+## Requirements
+
+- Visual Studio 2022 or later
+- .NET Framework 4.7.2+ target framework
+
+## Building from Source
 
 ```bash
 # Clone the repository
@@ -211,12 +407,18 @@ cd VsixSdk
 # Build the SDK package
 dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release
 
-# 📦 Package outputs to artifacts/packages/
+# Build the template package
+dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release
+
+# Packages output to artifacts/packages/
 ```
 
----
+## Contributors
 
-## 📄 License
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 

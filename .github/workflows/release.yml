@@ -12,6 +12,8 @@ jobs:
   release:
     needs: changelog
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
 
     permissions:
       contents: write
@@ -64,3 +66,43 @@ jobs:
           files: |
             artifacts/packages/CodingWithCalvin.VsixSdk.${{ steps.version.outputs.VERSION }}.nupkg
             artifacts/packages/CodingWithCalvin.VsixSdk.Templates.${{ steps.version.outputs.VERSION }}.nupkg
+
+  notify-bluesky:
+    needs: release
+    uses: CodingWithCalvin/.github/.github/workflows/bluesky-post.yml@main
+    with:
+      post_text: |
+        🚀 CodingWithCalvin.VsixSdk v${{ needs.release.outputs.version }} has been released!
+
+        Build modern SDK-style Visual Studio extensions with ease.
+
+        [📋 Release Notes](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.release.outputs.version }})
+        [📦 NuGet](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
+
+        #dotnet #csharp #visualstudio #nuget
+      embed_url: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
+      embed_title: CodingWithCalvin.VsixSdk
+      embed_description: An MSBuild SDK for modern SDK-style Visual Studio extension development
+    secrets:
+      BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+
+  notify-linkedin:
+    needs: release
+    uses: CodingWithCalvin/.github/.github/workflows/linkedin-post.yml@main
+    with:
+      post_text: |
+        🚀 CodingWithCalvin.VsixSdk v${{ needs.release.outputs.version }} has been released!
+
+        Build modern SDK-style Visual Studio extensions with ease.
+
+        📋 Release Notes: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.release.outputs.version }}
+        📦 NuGet: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
+
+        #dotnet #csharp #visualstudio #nuget
+      article_url: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
+      article_title: CodingWithCalvin.VsixSdk
+      article_description: An MSBuild SDK for modern SDK-style Visual Studio extension development
+    secrets:
+      LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+      LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}

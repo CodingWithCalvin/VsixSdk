@@ -7,4 +7,9 @@
   <!-- Import VSIX-specific item includes and targets -->
   <Import Project="$(CodingWithCalvinVsixSdkRoot)Sdk\Sdk.Vsix.targets" />
 
+  <!-- Reference the source generators for local development -->
+  <ItemGroup Condition="'$(CodingWithCalvinVsixSdkLocalDev)' == 'true'">
+    <Analyzer Include="$(CodingWithCalvinVsixSdkRoot)..\CodingWithCalvin.VsixSdk.Generators\bin\$(Configuration)\netstandard2.0\CodingWithCalvin.VsixSdk.Generators.dll" />
+  </ItemGroup>
+
 </Project>

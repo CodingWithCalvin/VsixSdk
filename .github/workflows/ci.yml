@@ -19,14 +19,14 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Create artifacts directory
+        run: New-Item -ItemType Directory -Force -Path artifacts/packages
 
       - name: Build SDK
-        run: dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release --no-restore
+        run: dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release
 
       - name: Build Templates
-        run: dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release --no-restore
+        run: dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release
 
       - name: Build Sample Extension
         run: dotnet build samples/SampleExtension/SampleExtension.csproj -c Release

@@ -34,10 +34,25 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <!-- Reference the generators project -->
+  <ItemGroup>
+    <ProjectReference Include="..\CodingWithCalvin.VsixSdk.Generators\CodingWithCalvin.VsixSdk.Generators.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+
   <!-- Include the SDK files in the package at the correct location -->
   <ItemGroup>
     <!-- The Sdk folder must be at the root of the package -->
     <None Include="Sdk\**\*" Pack="true" PackagePath="Sdk" />
+
+    <!-- Include the source generators as analyzers -->
+    <None Include="..\CodingWithCalvin.VsixSdk.Generators\bin\$(Configuration)\netstandard2.0\CodingWithCalvin.VsixSdk.Generators.dll"
+          Pack="true"
+          PackagePath="analyzers\dotnet\cs"
+          Visible="false" />
 
     <!-- Include README at package root -->
     <None Include="..\..\README.md" Pack="true" PackagePath="" />
