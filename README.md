@@ -310,43 +310,6 @@ Press F5 to launch the Visual Studio Experimental Instance with your extension l
 
 Extensions are only deployed to the Experimental Instance when building inside Visual Studio. This prevents errors when building from the command line.
 
-### 📋 Publish Manifest Generation
-
-The SDK automatically generates a `publish.manifest.json` file for publishing to the VS Marketplace. All values are extracted from your VSIX manifest:
-
-```json
-{
-  "$schema": "http://json.schemastore.org/vsix-publish",
-  "categories": [
-    "your", "tags", "here"
-  ],
-  "identity": {
-    "internalName": "MyExtension"
-  },
-  "overview": "README.md",
-  "publisher": "Your Name",
-  "qna": true,
-  "repo": "https://github.com/you/your-repo"
-}
-```
-
-| JSON Field | Source |
-|------------|--------|
-| `publisher` | `Identity/@Publisher` in VSIX manifest |
-| `categories` | `Tags` element in VSIX manifest |
-| `repo` | `MoreInfo` element in VSIX manifest |
-| `internalName` | Project name |
-| `overview` | Configurable via `VsixPublishOverview` property (default: `README.md`) |
-| `qna` | Configurable via `VsixPublishQnA` property (default: `true`) |
-
-To disable publish manifest generation:
-
-```xml
-<PropertyGroup>
-  <GeneratePublishManifest>false</GeneratePublishManifest>
-</PropertyGroup>
-```
-
 ## ⚙️ Configuration
 
 ### Properties
@@ -360,9 +323,6 @@ To disable publish manifest generation:
 | `EnableDefaultVsixItems` | `true` | Auto-include VSIX-related files |
 | `EmitCompilerGeneratedFiles` | `true` | Write generated source files to disk |
 | `CompilerGeneratedFilesOutputPath` | `Generated/` | Location for generated source files |
-| `GeneratePublishManifest` | `true` | Generate `publish.manifest.json` for VS Marketplace |
-| `VsixPublishOverview` | `README.md` | Path to README for marketplace overview |
-| `VsixPublishQnA` | `true` | Enable Q&A on marketplace listing |
 
 > \* Only when `Configuration=Debug` AND building inside Visual Studio
 
