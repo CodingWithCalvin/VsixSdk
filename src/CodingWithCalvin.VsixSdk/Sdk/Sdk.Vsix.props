@@ -5,6 +5,15 @@
     VSIX-specific properties. Can be imported standalone or as part of the full SDK.
   -->
 
+  <!--
+    Include source generators from the SDK package.
+    The analyzers folder is at the package root, parallel to the Sdk folder.
+  -->
+  <ItemGroup>
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\CodingWithCalvin.VsixSdk.Generators.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\CodingWithCalvin.VsixSdk.Generators.dll')" />
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- Identify that this SDK is in use -->
     <UsingCodingWithCalvinVsixSdk>true</UsingCodingWithCalvinVsixSdk>
