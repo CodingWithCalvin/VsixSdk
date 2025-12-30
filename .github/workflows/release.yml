@@ -37,8 +37,8 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Create artifacts directory
+        run: New-Item -ItemType Directory -Force -Path artifacts/packages
 
       - name: Build SDK
         run: dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release -p:Version=${{ steps.version.outputs.VERSION }}
