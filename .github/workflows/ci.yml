@@ -23,22 +23,37 @@ jobs:
         run: dotnet restore
 
       - name: Build SDK
-        run: dotnet build src/VsixCommunity.Sdk/VsixCommunity.Sdk.csproj -c Release --no-restore
+        run: dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release --no-restore
 
       - name: Build Templates
-        run: dotnet pack src/VsixCommunity.Sdk.Templates/VsixCommunity.Sdk.Templates.csproj -c Release --no-restore
+        run: dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release --no-restore
 
       - name: Build Sample Extension
         run: dotnet build samples/SampleExtension/SampleExtension.csproj -c Release
+
+      - name: Test Template - Install
+        run: dotnet new install artifacts/packages/CodingWithCalvin.VsixSdk.Templates.1.0.0.nupkg
+
+      - name: Test Template - Create Project
+        run: |
+          mkdir test-template
+          cd test-template
+          dotnet new vsix -n TestExtension --publisher "CI Test"
+
+      - name: Test Template - Build Project
+        run: dotnet build test-template/TestExtension/TestExtension.csproj -c Release
+
+      - name: Test Template - Uninstall
+        run: dotnet new uninstall CodingWithCalvin.VsixSdk.Templates
 
       - name: Upload SDK Package
         uses: actions/upload-artifact@v4
         with:
           name: sdk-package
-          path: artifacts/packages/VsixCommunity.Sdk.*.nupkg
+          path: artifacts/packages/CodingWithCalvin.VsixSdk.*.nupkg
 
       - name: Upload Templates Package
         uses: actions/upload-artifact@v4
         with:
           name: templates-package
-          path: artifacts/packages/VsixCommunity.Sdk.Templates.*.nupkg
+          path: artifacts/packages/CodingWithCalvin.VsixSdk.Templates.*.nupkg

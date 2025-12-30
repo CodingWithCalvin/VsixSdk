@@ -1,6 +1,6 @@
 <Project>
   <!--
-    VsixCommunity.Sdk - Sdk.Vsix.targets
+    CodingWithCalvin.VsixSdk - Sdk.Vsix.targets
 
     VSIX-specific targets. Can be imported standalone or as part of the full SDK.
   -->

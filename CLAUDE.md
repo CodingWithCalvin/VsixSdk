@@ -40,16 +40,16 @@ gh issue close <number>
 
 ## Project Overview
 
-VsixCommunity.Sdk is an MSBuild SDK that enables SDK-style `.csproj` files for Visual Studio extension (VSIX) development. It wraps `Microsoft.NET.Sdk` and `Microsoft.VSSDK.BuildTools` to provide a modern project format for VS 2022+ extensions.
+CodingWithCalvin.VsixSdk is an MSBuild SDK that enables SDK-style `.csproj` files for Visual Studio extension (VSIX) development. It wraps `Microsoft.NET.Sdk` and `Microsoft.VSSDK.BuildTools` to provide a modern project format for VS 2022+ extensions.
 
 ## Build Commands
 
 ```bash
 # Build the SDK package
-dotnet build src/VsixCommunity.Sdk/VsixCommunity.Sdk.csproj -c Release
+dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release
 
 # Build the template package
-dotnet pack src/VsixCommunity.Sdk.Templates/VsixCommunity.Sdk.Templates.csproj -c Release
+dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release
 
 # Build the sample extension (tests the SDK locally)
 dotnet build samples/SampleExtension/SampleExtension.csproj
@@ -61,18 +61,18 @@ dotnet build samples/SampleExtension/SampleExtension.csproj
 
 ```bash
 # Install template from local package
-dotnet new install artifacts/packages/VsixCommunity.Sdk.Templates.1.0.0.nupkg
+dotnet new install artifacts/packages/CodingWithCalvin.VsixSdk.Templates.1.0.0.nupkg
 
 # Test creating a new project
 dotnet new vsix -n TestExtension --publisher "Test"
 
 # Uninstall when done
-dotnet new uninstall VsixCommunity.Sdk.Templates
+dotnet new uninstall CodingWithCalvin.VsixSdk.Templates
 ```
 
 ## Architecture
 
-### SDK Structure (`src/VsixCommunity.Sdk/Sdk/`)
+### SDK Structure (`src/CodingWithCalvin.VsixSdk/Sdk/`)
 
 The SDK follows MSBuild SDK conventions with props/targets pairs:
 
@@ -87,7 +87,7 @@ The modular design allows `Sdk.Vsix.props`/`Sdk.Vsix.targets` to be imported sta
 
 Sample projects use `Sdk="Microsoft.NET.Sdk"` directly, with `samples/Directory.Build.props` and `samples/Directory.Build.targets` importing the VSIX-specific files from source. This allows testing SDK changes without rebuilding the NuGet package.
 
-### Template Structure (`src/VsixCommunity.Sdk.Templates/`)
+### Template Structure (`src/CodingWithCalvin.VsixSdk.Templates/`)
 
 Uses `dotnet new` template engine with:
 - `template.json` defining parameters (`publisher`, `description`) and generated GUIDs

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj" />
+  <Project Path="CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj" />
+</Solution>

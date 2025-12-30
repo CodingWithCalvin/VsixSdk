@@ -3,7 +3,7 @@
   Directory.Build.props/targets to add VSIX SDK behavior.
 
   When published, users would use:
-  <Project Sdk="VsixCommunity.Sdk/1.0.0">
+  <Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 

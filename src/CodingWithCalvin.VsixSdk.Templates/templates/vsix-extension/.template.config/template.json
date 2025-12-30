@@ -1,15 +1,15 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "VsixCommunity",
+  "author": "CodingWithCalvin",
   "classifications": [
     "Visual Studio",
     "Extension",
     "VSIX"
   ],
-  "identity": "VsixCommunity.Sdk.Extension",
+  "identity": "CodingWithCalvin.VsixSdk.Extension",
   "name": "VSIX Extension (SDK-style)",
   "shortName": "vsix",
-  "description": "A Visual Studio extension project using SDK-style format with VsixCommunity.Sdk",
+  "description": "A Visual Studio extension project using SDK-style format with CodingWithCalvin.VsixSdk",
   "tags": {
     "language": "C#",
     "type": "project"

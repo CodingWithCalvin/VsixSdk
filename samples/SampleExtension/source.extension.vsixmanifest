@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="SampleExtension.a1b2c3d4-e5f6-7890-abcd-ef1234567890" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="VSIX Community" />
+    <Identity Id="SampleExtension.a1b2c3d4-e5f6-7890-abcd-ef1234567890" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="Coding With Calvin" />
     <DisplayName>Sample Extension</DisplayName>
-    <Description>A sample Visual Studio extension built with VsixCommunity.Sdk</Description>
+    <Description>A sample Visual Studio extension built with CodingWithCalvin.VsixSdk</Description>
     <Tags>sample, test</Tags>
   </Metadata>
   <Installation>

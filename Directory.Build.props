@@ -3,10 +3,22 @@
     Common properties for all projects in this repository
   -->
   <PropertyGroup>
-    <Authors>VSIX Community</Authors>
-    <Company>VSIX Community</Company>
-    <Copyright>Copyright (c) VSIX Community</Copyright>
+    <Authors>Coding With Calvin</Authors>
+    <Company>Coding With Calvin</Company>
+    <Copyright>Copyright (c) Coding With Calvin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <!--
+    SourceLink configuration for package provenance
+  -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
+  </ItemGroup>
 
 </Project>

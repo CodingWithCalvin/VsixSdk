@@ -1,6 +1,6 @@
 <Project>
   <!--
-    VsixCommunity.Sdk - Sdk.targets
+    CodingWithCalvin.VsixSdk - Sdk.targets
 
     This file is imported at the END of the project file.
     It imports Microsoft.NET.Sdk targets and then adds VSIX-specific targets.

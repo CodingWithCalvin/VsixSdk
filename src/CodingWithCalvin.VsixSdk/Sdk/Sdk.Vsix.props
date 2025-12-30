@@ -1,13 +1,13 @@
 <Project>
   <!--
-    VsixCommunity.Sdk - Sdk.Vsix.props
+    CodingWithCalvin.VsixSdk - Sdk.Vsix.props
 
     VSIX-specific properties. Can be imported standalone or as part of the full SDK.
   -->
 
   <PropertyGroup>
     <!-- Identify that this SDK is in use -->
-    <UsingVsixCommunitySdk>true</UsingVsixCommunitySdk>
+    <UsingCodingWithCalvinVsixSdk>true</UsingCodingWithCalvinVsixSdk>
 
     <!-- VS 2022+ is 64-bit only -->
     <Platform Condition="'$(Platform)' == ''">x64</Platform>

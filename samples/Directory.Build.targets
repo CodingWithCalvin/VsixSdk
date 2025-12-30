@@ -5,6 +5,6 @@
   -->
 
   <!-- Import VSIX-specific item includes and targets -->
-  <Import Project="$(VsixCommunitySdkRoot)Sdk\Sdk.Vsix.targets" />
+  <Import Project="$(CodingWithCalvinVsixSdkRoot)Sdk\Sdk.Vsix.targets" />
 
 </Project>

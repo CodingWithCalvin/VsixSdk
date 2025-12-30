@@ -1,11 +1,11 @@
-# VsixCommunity.Sdk.Templates
+# CodingWithCalvin.VsixSdk.Templates
 
-Project templates for creating Visual Studio extensions using [VsixCommunity.Sdk](https://github.com/CodingWithCalvin/VsixCommunity.Sdk).
+Project templates for creating Visual Studio extensions using [CodingWithCalvin.VsixSdk](https://github.com/CodingWithCalvin/CodingWithCalvin.VsixSdk).
 
 ## Installation
 
 ```bash
-dotnet new install VsixCommunity.Sdk.Templates
+dotnet new install CodingWithCalvin.VsixSdk.Templates
 ```
 
 ## Available Templates
@@ -53,5 +53,5 @@ dotnet new vsix -n MyExtension -o src/MyExtension
 ## Uninstall
 
 ```bash
-dotnet new uninstall VsixCommunity.Sdk.Templates
+dotnet new uninstall CodingWithCalvin.VsixSdk.Templates
 ```

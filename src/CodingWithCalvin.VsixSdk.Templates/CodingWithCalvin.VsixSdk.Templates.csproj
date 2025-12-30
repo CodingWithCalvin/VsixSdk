@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageId>VsixCommunity.Sdk.Templates</PackageId>
+    <PackageId>CodingWithCalvin.VsixSdk.Templates</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Calvin A. Allen</Authors>
-    <Description>Project templates for creating Visual Studio extensions using VsixCommunity.Sdk</Description>
+    <Authors>Coding With Calvin</Authors>
+    <Description>Project templates for creating Visual Studio extensions using CodingWithCalvin.VsixSdk</Description>
     <PackageTags>dotnet-new;templates;vsix;visualstudio;extension</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/CodingWithCalvin/VsixSdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CodingWithCalvin/VsixSdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
@@ -19,6 +19,9 @@
     <ContentTargetFolders>content</ContentTargetFolders>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <NoDefaultExcludes>true</NoDefaultExcludes>
+
+    <!-- No symbols for template packages -->
+    <IncludeSymbols>false</IncludeSymbols>
 
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\artifacts\packages</PackageOutputPath>
   </PropertyGroup>

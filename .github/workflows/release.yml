@@ -1,22 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (e.g., 1.0.0)'
-        required: true
-        type: string
-      publish_sdk:
-        description: 'Publish SDK package'
-        required: true
-        type: boolean
-        default: true
-      publish_templates:
-        description: 'Publish Templates package'
-        required: true
-        type: boolean
-        default: true
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   changelog:
@@ -26,9 +13,22 @@ jobs:
     needs: changelog
     runs-on: windows-latest
 
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag -replace '^v', ''
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=$tag" >> $env:GITHUB_OUTPUT
+        shell: pwsh
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -39,25 +39,28 @@ jobs:
         run: dotnet restore
 
       - name: Build SDK
-        run: dotnet build src/VsixCommunity.Sdk/VsixCommunity.Sdk.csproj -c Release -p:Version=${{ inputs.version }}
+        run: dotnet build src/CodingWithCalvin.VsixSdk/CodingWithCalvin.VsixSdk.csproj -c Release -p:Version=${{ steps.version.outputs.VERSION }}
 
       - name: Build Templates
-        run: dotnet pack src/VsixCommunity.Sdk.Templates/VsixCommunity.Sdk.Templates.csproj -c Release -p:Version=${{ inputs.version }}
+        run: dotnet pack src/CodingWithCalvin.VsixSdk.Templates/CodingWithCalvin.VsixSdk.Templates.csproj -c Release -p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: NuGet login (OIDC)
+        uses: nuget/login@v1
+        with:
+          user: ${{ secrets.NUGET_USERNAME }}
 
       - name: Publish SDK to NuGet
-        if: ${{ inputs.publish_sdk }}
-        run: dotnet nuget push artifacts/packages/VsixCommunity.Sdk.${{ inputs.version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.${{ steps.version.outputs.VERSION }}.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Publish Templates to NuGet
-        if: ${{ inputs.publish_templates }}
-        run: dotnet nuget push artifacts/packages/VsixCommunity.Sdk.Templates.${{ inputs.version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push artifacts/packages/CodingWithCalvin.VsixSdk.Templates.${{ steps.version.outputs.VERSION }}.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ inputs.version }}
-          name: v${{ inputs.version }}
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: v${{ steps.version.outputs.VERSION }}
           body: ${{ needs.changelog.outputs.changelog }}
           files: |
-            artifacts/packages/VsixCommunity.Sdk.${{ inputs.version }}.nupkg
-            artifacts/packages/VsixCommunity.Sdk.Templates.${{ inputs.version }}.nupkg
+            artifacts/packages/CodingWithCalvin.VsixSdk.${{ steps.version.outputs.VERSION }}.nupkg
+            artifacts/packages/CodingWithCalvin.VsixSdk.Templates.${{ steps.version.outputs.VERSION }}.nupkg

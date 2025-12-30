@@ -1,4 +1,4 @@
-<Project Sdk="VsixCommunity.Sdk/1.0.0">
+<Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>

@@ -5,14 +5,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
 
     <!-- Package metadata -->
-    <PackageId>VsixCommunity.Sdk</PackageId>
+    <PackageId>CodingWithCalvin.VsixSdk</PackageId>
     <Version>1.0.0</Version>
-    <Authors>VSIX Community</Authors>
+    <Authors>Coding With Calvin</Authors>
     <Description>An MSBuild SDK for building Visual Studio extensions (VSIX) using SDK-style projects. Supports Visual Studio 2022 and later.</Description>
     <PackageTags>vsix;visualstudio;extension;sdk;msbuild</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/CodingWithCalvin/VsixCommunity.Sdk</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/CodingWithCalvin/VsixSdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CodingWithCalvin/VsixSdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
@@ -25,6 +25,9 @@
     <!-- Don't include build output in the package (this is an SDK, not a library) -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+    <!-- No symbols for SDK packages (no meaningful code to debug) -->
+    <IncludeSymbols>false</IncludeSymbols>
 
     <!-- Disable all code generation since this project has no code -->
     <EnableDefaultItems>false</EnableDefaultItems>

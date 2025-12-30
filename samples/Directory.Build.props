@@ -6,13 +6,13 @@
 
   <PropertyGroup>
     <!-- Path to local SDK files -->
-    <VsixCommunitySdkRoot>$(MSBuildThisFileDirectory)..\src\VsixCommunity.Sdk\</VsixCommunitySdkRoot>
+    <CodingWithCalvinVsixSdkRoot>$(MSBuildThisFileDirectory)..\src\CodingWithCalvin.VsixSdk\</CodingWithCalvinVsixSdkRoot>
 
     <!-- Signal that we're running in local development mode -->
-    <VsixCommunitySdkLocalDev>true</VsixCommunitySdkLocalDev>
+    <CodingWithCalvinVsixSdkLocalDev>true</CodingWithCalvinVsixSdkLocalDev>
   </PropertyGroup>
 
   <!-- Import VSIX-specific properties (after Microsoft.NET.Sdk.props is imported by the project) -->
-  <Import Project="$(VsixCommunitySdkRoot)Sdk\Sdk.Vsix.props" />
+  <Import Project="$(CodingWithCalvinVsixSdkRoot)Sdk\Sdk.Vsix.props" />
 
 </Project>

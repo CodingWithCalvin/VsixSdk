@@ -1,6 +1,6 @@
 <Project>
   <!--
-    VsixCommunity.Sdk - Sdk.props
+    CodingWithCalvin.VsixSdk - Sdk.props
 
     This file is imported at the BEGINNING of the project file.
     It imports Microsoft.NET.Sdk and then adds VSIX-specific properties.
