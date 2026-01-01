@@ -95,8 +95,7 @@ Replace your entire `.csproj` file with the SDK-style format:
 
 **After (SDK-style):**
 ```xml
-<Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
-
+<Project Sdk="CodingWithCalvin.VsixSdk/0.3.0">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>MyExtension</RootNamespace>
@@ -106,7 +105,6 @@ Replace your entire `.csproj` file with the SDK-style format:
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
   </ItemGroup>
-
 </Project>
 ```
 
@@ -174,8 +172,7 @@ Fix any errors that arise. Common issues:
 If you prefer to set up manually, create a `.csproj` file:
 
 ```xml
-<Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
-
+<Project Sdk="CodingWithCalvin.VsixSdk/0.3.0">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
@@ -183,7 +180,6 @@ If you prefer to set up manually, create a `.csproj` file:
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
   </ItemGroup>
-
 </Project>
 ```
 
