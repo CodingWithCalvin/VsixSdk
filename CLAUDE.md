@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 5. **Branch naming** - Use format: `type/scope/short-description` (e.g., `feat/sdk/version-sync`)
 6. **Working an issue** - Always create a new branch from an updated main branch
 7. **Check branch status before pushing** - Verify the remote tracking branch still exists. If a PR was merged/deleted, create a new branch from main instead
+8. **Microsoft coding guidelines** - Follow [Microsoft C# coding conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) and [.NET library design guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)
 
 ---
 
@@ -35,6 +36,8 @@ gh issue close <number>
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
 | `test` | Adding or updating tests |
 | `chore` | Maintenance tasks |
+| `perf` | Performance improvement |
+| `ci` | CI/CD changes |
 
 ---
 
