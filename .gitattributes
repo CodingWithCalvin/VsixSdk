@@ -1,0 +1,17 @@
+# Auto detect text files and normalize line endings
+* text=auto eol=crlf
+
+# C# source files
+*.cs text eol=crlf
+
+# Project files
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.slnx text eol=crlf
+
+# Config files (use LF for cross-platform tools)
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sh text eol=lf
