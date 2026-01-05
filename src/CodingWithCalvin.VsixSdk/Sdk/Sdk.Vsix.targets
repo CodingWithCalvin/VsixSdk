@@ -146,11 +146,13 @@
           Condition="'$(BuildingInsideVisualStudio)' == 'true' and '$(DevEnvDir)' != '' and !Exists('$(MSBuildProjectDirectory)\Properties\launchSettings.json')">
 
     <PropertyGroup>
+      <!-- Escape backslashes for JSON -->
+      <_DevEnvDirEscaped>$([System.String]::Copy('$(DevEnvDir)').Replace('\','\\'))</_DevEnvDirEscaped>
       <_LaunchSettingsContent><![CDATA[{
   "profiles": {
-    "Start Experimental Instance": {
+    "Debug Extension": {
       "commandName": "Executable",
-      "executablePath": "$(DevEnvDir)devenv.exe",
+      "executablePath": "$(_DevEnvDirEscaped)devenv.exe",
       "commandLineArgs": "/rootSuffix Exp"
     }
   }
