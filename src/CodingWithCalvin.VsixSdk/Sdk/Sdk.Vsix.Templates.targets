@@ -15,34 +15,32 @@
   </PropertyGroup>
 
   <!--
-    Auto-discover project templates in the ProjectTemplates folder.
-    Each subfolder containing a .vstemplate file becomes a VsixProjectTemplate item.
+    Auto-discover project and item templates.
+    Discovery must happen in a target because we need to compute additional metadata.
   -->
-  <ItemGroup Condition="'$(EnableDefaultVsixTemplateItems)' == 'true' and '$(EnableDefaultItems)' != 'false'">
+  <Target Name="DiscoverVsixTemplates" BeforeTargets="PrepareVsixTemplates">
     <!-- Find all .vstemplate files in ProjectTemplates subfolders -->
-    <_DiscoveredProjectTemplateFiles Include="$(VsixProjectTemplatesFolder)\**\*.vstemplate"
-                                      Condition="Exists('$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)')"
-                                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <ItemGroup Condition="'$(EnableDefaultVsixTemplateItems)' == 'true' and '$(EnableDefaultItems)' != 'false'">
+      <_DiscoveredProjectTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)\**\*.vstemplate"
+                                        Condition="Exists('$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)')" />
+      <_DiscoveredItemTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)\**\*.vstemplate"
+                                     Condition="Exists('$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)')" />
+    </ItemGroup>
 
-    <!-- Convert to folder paths (parent of each .vstemplate) -->
-    <VsixProjectTemplate Include="@(_DiscoveredProjectTemplateFiles->'%(RootDir)%(Directory)'->TrimEnd('\')->Distinct())"
-                         Condition="'@(_DiscoveredProjectTemplateFiles)' != ''" />
-  </ItemGroup>
+    <!-- Create VsixProjectTemplate items - use the parent directory of the .vstemplate file -->
+    <ItemGroup Condition="'@(_DiscoveredProjectTemplateFiles)' != ''">
+      <VsixProjectTemplate Include="@(_DiscoveredProjectTemplateFiles->'%(RootDir)%(Directory)')">
+        <!-- Compute folder name from .vstemplate filename by getting its parent folder -->
+        <_TemplateFolderName>%(_DiscoveredProjectTemplateFiles.Filename)</_TemplateFolderName>
+      </VsixProjectTemplate>
+    </ItemGroup>
 
-  <!--
-    Auto-discover item templates in the ItemTemplates folder.
-    Each subfolder containing a .vstemplate file becomes a VsixItemTemplate item.
-  -->
-  <ItemGroup Condition="'$(EnableDefaultVsixTemplateItems)' == 'true' and '$(EnableDefaultItems)' != 'false'">
-    <!-- Find all .vstemplate files in ItemTemplates subfolders -->
-    <_DiscoveredItemTemplateFiles Include="$(VsixItemTemplatesFolder)\**\*.vstemplate"
-                                   Condition="Exists('$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)')"
-                                   Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-
-    <!-- Convert to folder paths (parent of each .vstemplate) -->
-    <VsixItemTemplate Include="@(_DiscoveredItemTemplateFiles->'%(RootDir)%(Directory)'->TrimEnd('\')->Distinct())"
-                      Condition="'@(_DiscoveredItemTemplateFiles)' != ''" />
-  </ItemGroup>
+    <ItemGroup Condition="'@(_DiscoveredItemTemplateFiles)' != ''">
+      <VsixItemTemplate Include="@(_DiscoveredItemTemplateFiles->'%(RootDir)%(Directory)')">
+        <_TemplateFolderName>%(_DiscoveredItemTemplateFiles.Filename)</_TemplateFolderName>
+      </VsixItemTemplate>
+    </ItemGroup>
+  </Target>
 
   <!--
     Exclude template source files from being included as Content in the VSIX.
@@ -57,18 +55,17 @@
     Target: PrepareVsixTemplates
     Prepares template items for zipping by computing output paths.
   -->
-  <Target Name="PrepareVsixTemplates" BeforeTargets="ZipVsixTemplates">
+  <Target Name="PrepareVsixTemplates" BeforeTargets="ZipVsixTemplates" DependsOnTargets="DiscoverVsixTemplates">
     <ItemGroup>
-      <!-- Compute zip file name from folder name for project templates -->
+      <!-- Compute zip file name and output path for project templates -->
+      <!-- _TemplateFolderName was set during discovery from the .vstemplate filename -->
       <VsixProjectTemplate>
-        <_TemplateFolderName>$([System.IO.Path]::GetFileName('%(Identity)'))</_TemplateFolderName>
         <_ZipFileName>%(VsixProjectTemplate._TemplateFolderName).zip</_ZipFileName>
         <_ZipOutputPath>$(_VsixTemplateIntermediateOutputPath)ProjectTemplates\%(VsixProjectTemplate.TargetSubPath)</_ZipOutputPath>
       </VsixProjectTemplate>
 
-      <!-- Compute zip file name from folder name for item templates -->
+      <!-- Compute zip file name and output path for item templates -->
       <VsixItemTemplate>
-        <_TemplateFolderName>$([System.IO.Path]::GetFileName('%(Identity)'))</_TemplateFolderName>
         <_ZipFileName>%(VsixItemTemplate._TemplateFolderName).zip</_ZipFileName>
         <_ZipOutputPath>$(_VsixTemplateIntermediateOutputPath)ItemTemplates\%(VsixItemTemplate.TargetSubPath)</_ZipOutputPath>
       </VsixItemTemplate>
@@ -146,7 +143,6 @@
                       Condition="'@(VsixProjectTemplate)' != ''">
         <VSIXSubPath>ProjectTemplates\%(VsixProjectTemplate.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ProjectTemplates</InstallRoot>
       </VSIXSourceItem>
 
       <!-- Add zipped item templates -->
@@ -154,7 +150,6 @@
                       Condition="'@(VsixItemTemplate)' != ''">
         <VSIXSubPath>ItemTemplates\%(VsixItemTemplate.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ItemTemplates</InstallRoot>
       </VSIXSourceItem>
 
       <!-- Add pre-built template zips (project templates) -->
@@ -162,7 +157,6 @@
                       Condition="'@(VsixTemplateZip)' != '' and '%(VsixTemplateZip.TemplateType)' == 'Project'">
         <VSIXSubPath>ProjectTemplates\%(VsixTemplateZip.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ProjectTemplates</InstallRoot>
       </VSIXSourceItem>
 
       <!-- Add pre-built template zips (item templates) -->
@@ -170,7 +164,6 @@
                       Condition="'@(VsixTemplateZip)' != '' and '%(VsixTemplateZip.TemplateType)' == 'Item'">
         <VSIXSubPath>ItemTemplates\%(VsixTemplateZip.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ItemTemplates</InstallRoot>
       </VSIXSourceItem>
 
       <!-- Add template references (project templates) -->
@@ -178,7 +171,6 @@
                       Condition="'@(VsixTemplateReference)' != '' and '%(VsixTemplateReference.TemplateType)' == 'Project'">
         <VSIXSubPath>ProjectTemplates\%(VsixTemplateReference.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ProjectTemplates</InstallRoot>
       </VSIXSourceItem>
 
       <!-- Add template references (item templates) -->
@@ -186,7 +178,6 @@
                       Condition="'@(VsixTemplateReference)' != '' and '%(VsixTemplateReference.TemplateType)' == 'Item'">
         <VSIXSubPath>ItemTemplates\%(VsixTemplateReference.TargetSubPath)</VSIXSubPath>
         <Ngen>false</Ngen>
-        <InstallRoot>ItemTemplates</InstallRoot>
       </VSIXSourceItem>
     </ItemGroup>
   </Target>
