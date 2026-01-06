@@ -5,6 +5,9 @@
     VSIX-specific properties. Can be imported standalone or as part of the full SDK.
   -->
 
+  <!-- Import template support properties -->
+  <Import Project="$(MSBuildThisFileDirectory)Sdk.Vsix.Templates.props" />
+
   <!--
     Include source generators from the SDK package.
     The analyzers folder is at the package root, parallel to the Sdk folder.
