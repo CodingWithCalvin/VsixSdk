@@ -1,0 +1,5 @@
+; Additional pkgdef file to test multiple file merging
+
+[$RootKey$\E2E\CustomPkgDef\Additional]
+"ExtraSetting"="ExtraValue"
+"BoolSetting"=dword:00000000

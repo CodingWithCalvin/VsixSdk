@@ -1,0 +1,20 @@
+<!--
+  E2E.ValidationNoManifest - Tests missing manifest warning.
+
+  Validates:
+  - "No .vsixmanifest file found" warning triggered
+  - Build handles missing manifest gracefully
+
+  NOTE: This project intentionally has no manifest to trigger the warning.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Disable pkgdef generation since we have no manifest -->
+    <GeneratePkgDefFile>false</GeneratePkgDefFile>
+    <!-- Disable VSIX creation since we have no manifest -->
+    <CreateVsixContainer>false</CreateVsixContainer>
+  </PropertyGroup>
+
+</Project>

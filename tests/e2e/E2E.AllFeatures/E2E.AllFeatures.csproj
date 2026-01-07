@@ -1,0 +1,50 @@
+<!--
+  E2E.AllFeatures - Comprehensive test combining ALL SDK features.
+
+  Validates:
+  - All features work together without conflicts
+  - VSCT + templates + generators + version all coexist
+  - Complete VSIX package produced
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <!-- Pre-built template zip -->
+  <ItemGroup>
+    <VsixTemplateZip Include="PreBuilt\PreBuilt.zip" TemplateType="Project" />
+  </ItemGroup>
+
+  <!-- Cross-project template reference -->
+  <ItemGroup>
+    <VsixTemplateReference Include="..\E2E.Templates.SharedSource\E2E.Templates.SharedSource.csproj"
+                           TemplateType="Project"
+                           TemplatePath="Templates\SharedProject" />
+  </ItemGroup>
+
+  <!-- Manual template with subpath -->
+  <ItemGroup>
+    <VsixProjectTemplate Include="ManualTemplates\ManualProject" TargetSubPath="Manual" />
+  </ItemGroup>
+
+  <!-- Custom pkgdef files -->
+  <ItemGroup>
+    <PkgDefToMerge Include="CustomSettings.pkgdef" />
+  </ItemGroup>
+
+  <!-- Target to create pre-built zip if needed -->
+  <Target Name="CreatePreBuiltZip" BeforeTargets="PrepareForBuild">
+    <MakeDir Directories="PreBuilt" Condition="!Exists('PreBuilt')" />
+    <ZipDirectory SourceDirectory="PreBuiltSource\PreBuiltProject"
+                  DestinationFile="PreBuilt\PreBuilt.zip"
+                  Overwrite="true"
+                  Condition="Exists('PreBuiltSource\PreBuiltProject') and !Exists('PreBuilt\PreBuilt.zip')" />
+  </Target>
+
+</Project>

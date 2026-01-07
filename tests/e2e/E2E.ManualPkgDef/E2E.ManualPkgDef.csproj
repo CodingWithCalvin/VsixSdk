@@ -1,0 +1,29 @@
+<!--
+  E2E.ManualPkgDef - Tests manual-only pkgdef handling (no auto-generation).
+
+  Validates:
+  - GeneratePkgDefFile=false disables auto-generation
+  - Hand-written pkgdef file is used instead
+  - Build succeeds with manual pkgdef only
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Disable auto-generation of pkgdef -->
+    <GeneratePkgDefFile>false</GeneratePkgDefFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <!-- Use manual pkgdef file -->
+  <ItemGroup>
+    <Content Include="E2E.ManualPkgDef.pkgdef">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

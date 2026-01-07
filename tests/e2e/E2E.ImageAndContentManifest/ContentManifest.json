@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/vsix-content-manifest",
+  "contentType": "vsix-content-manifest",
+  "files": [
+    {
+      "path": "Content/readme.txt",
+      "type": "text"
+    },
+    {
+      "path": "Content/config.json",
+      "type": "json"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+; Custom pkgdef settings for AllFeatures test
+
+[$RootKey$\E2E\AllFeatures]
+"AllFeaturesEnabled"=dword:00000001
+"CustomSetting"="AllFeaturesValue"

@@ -1,0 +1,21 @@
+<!--
+  E2E.SourceGenerators - Tests source generator output comprehensively.
+
+  Validates:
+  - VsixInfo.g.cs generated with all manifest fields
+  - {Name}Vsct.g.cs generated with GUID and ID constants
+  - Generated constants usable in code (compile-time verification)
+  - String escaping works (quotes, backslashes in paths)
+  - Generated files appear in Generated/ folder
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

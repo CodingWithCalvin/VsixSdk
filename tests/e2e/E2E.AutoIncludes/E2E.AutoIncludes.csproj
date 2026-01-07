@@ -1,0 +1,20 @@
+<!--
+  E2E.AutoIncludes - Tests auto-inclusion of VSCT and VSPackage.resx files.
+
+  Validates:
+  - VSCT files auto-included with correct ResourceName
+  - VSPackage.resx auto-included with MergeWithCTO=true
+  - Localized VSPackage.*.resx files included as DependentUpon
+  - VsctGuids source generator produces command ID constants
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

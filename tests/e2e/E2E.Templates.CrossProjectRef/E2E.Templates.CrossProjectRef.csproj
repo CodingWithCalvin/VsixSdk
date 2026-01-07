@@ -1,0 +1,28 @@
+<!--
+  E2E.Templates.CrossProjectRef - Tests VsixTemplateReference from another project.
+
+  Validates:
+  - Templates from other project zipped
+  - Included in VSIX at correct paths
+  - TemplatePath metadata works
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VsixTemplateReference Include="..\E2E.Templates.SharedSource\E2E.Templates.SharedSource.csproj"
+                           TemplateType="Project"
+                           TemplatePath="Templates\SharedProject" />
+    <VsixTemplateReference Include="..\E2E.Templates.SharedSource\E2E.Templates.SharedSource.csproj"
+                           TemplateType="Item"
+                           TemplatePath="Templates\SharedItem" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+; Manual pkgdef file - used when GeneratePkgDefFile=false
+; This file contains all VS registrations for the extension
+
+; Package registration
+[$RootKey$\Packages\{00000000-0000-0000-0000-000000000006}]
+@="E2E ManualPkgDef Package"
+"InprocServer32"="$WinDir$\SYSTEM32\MSCOREE.DLL"
+"Class"="E2E.ManualPkgDef.ManualPkgDefPackage"
+"CodeBase"="$PackageFolder$\E2E.ManualPkgDef.dll"
+
+; Custom settings
+[$RootKey$\E2E\ManualPkgDef]
+"ManualSetting"="ManualValue"
+"IsManualOnly"=dword:00000001

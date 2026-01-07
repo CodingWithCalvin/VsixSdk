@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+
+  <Commands package="guidAllFeaturesPackage">
+    <Groups>
+      <Group guid="guidAllFeaturesCommandSet" id="AllFeaturesMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidAllFeaturesCommandSet" id="AllFeaturesCommand" priority="0x0100" type="Button">
+        <Parent guid="guidAllFeaturesCommandSet" id="AllFeaturesMenuGroup" />
+        <Strings>
+          <ButtonText>All Features Command</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="guidAllFeaturesPackage" value="{DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD}" />
+    <GuidSymbol name="guidAllFeaturesCommandSet" value="{EEEEEEEE-EEEE-EEEE-EEEE-EEEEEEEEEEEE}">
+      <IDSymbol name="AllFeaturesMenuGroup" value="0x1020" />
+      <IDSymbol name="AllFeaturesCommand" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>

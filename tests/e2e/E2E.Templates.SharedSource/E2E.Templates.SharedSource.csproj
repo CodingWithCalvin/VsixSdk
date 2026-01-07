@@ -1,0 +1,15 @@
+<!--
+  E2E.Templates.SharedSource - Helper project holding templates for reference testing.
+
+  This is NOT a VSIX project - it's a simple class library that contains
+  template folders that other VSIX projects can reference.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- This is just a template container, not a real library -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+</Project>
