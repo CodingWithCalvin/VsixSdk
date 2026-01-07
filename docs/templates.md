@@ -13,11 +13,14 @@ This SDK provides MSBuild-based template support that works around these limitat
 
 ## How It Works
 
-VSSDK (the Visual Studio SDK build tools) handles the actual template packaging when your manifest contains `<Content><ProjectTemplate/></Content>` entries. This SDK provides:
+This SDK handles template packaging by:
 
-1. **Auto-discovery** of templates for validation
-2. **Cross-project template references** for including templates from other SDK-style projects
-3. **Validation warnings** if your manifest is missing required Content entries
+1. **Auto-discovering** templates in `ProjectTemplates/` and `ItemTemplates/` folders
+2. **Including template files** in the VSIX package automatically
+3. **Supporting cross-project template references** for including templates from other SDK-style projects
+4. **Providing validation warnings** if your manifest is missing required Content entries
+
+Your manifest must contain `<Content><ProjectTemplate/></Content>` entries for Visual Studio to register and display templates. The SDK includes the template files in the VSIX; the manifest entries tell VS how to find and register them.
 
 ## Item Types
 
@@ -55,8 +58,8 @@ MyExtension/
 
 With this structure, minimal configuration is needed. The SDK will:
 1. Find the templates automatically
-2. Warn if `<Content>` entries are missing from the manifest
-3. VSSDK packages the templates into the VSIX
+2. Include all template files in the VSIX
+3. Warn if `<Content>` entries are missing from the manifest
 
 You need to add the Content entries to your manifest manually (see Manifest Configuration below).
 
@@ -95,7 +98,7 @@ When you have templates in a separate SDK-style project that the VSIX Manifest D
 
 The SDK will:
 1. Copy the template folder from the referenced project to your local `ProjectTemplates/` or `ItemTemplates/` folder
-2. VSSDK will then discover and package it normally
+2. Include the copied template files in the VSIX
 
 The `TemplatePath` is relative to the referenced project's directory.
 
