@@ -1,0 +1,21 @@
+<!--
+  For LOCAL DEVELOPMENT, this project uses Microsoft.NET.Sdk with
+  Directory.Build.props/targets to add VSIX SDK behavior.
+
+  When published, users would use:
+  <Project Sdk="CodingWithCalvin.VsixSdk/1.0.0">
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <Version>1.0.0</Version>
+    <RootNamespace>SampleExtensionWithTemplates</RootNamespace>
+    <AssemblyName>SampleExtensionWithTemplates</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

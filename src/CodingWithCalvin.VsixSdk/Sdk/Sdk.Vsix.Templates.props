@@ -1,0 +1,74 @@
+<Project>
+  <!--
+    CodingWithCalvin.VsixSdk - Sdk.Vsix.Templates.props
+
+    Template support for VSIX projects. Defines item types for including
+    project templates and item templates in VSIX packages.
+
+    This bypasses the broken VSIX Manifest Designer which cannot enumerate
+    SDK-style projects for template assets.
+  -->
+
+  <PropertyGroup>
+    <!-- Enable/disable automatic template discovery -->
+    <EnableDefaultVsixTemplateItems Condition="'$(EnableDefaultVsixTemplateItems)' == ''">true</EnableDefaultVsixTemplateItems>
+
+    <!-- Default folders for template discovery -->
+    <VsixProjectTemplatesFolder Condition="'$(VsixProjectTemplatesFolder)' == ''">ProjectTemplates</VsixProjectTemplatesFolder>
+    <VsixItemTemplatesFolder Condition="'$(VsixItemTemplatesFolder)' == ''">ItemTemplates</VsixItemTemplatesFolder>
+  </PropertyGroup>
+
+  <!--
+    Item type definitions:
+
+    VsixProjectTemplate  - A folder containing a .vstemplate file for a project template
+                           Will be zipped and included in the VSIX at ProjectTemplates/
+
+    VsixItemTemplate     - A folder containing a .vstemplate file for an item template
+                           Will be zipped and included in the VSIX at ItemTemplates/
+
+    VsixTemplateZip      - A pre-built template zip file to include directly
+                           Specify TemplateType="Project" or TemplateType="Item"
+
+    VsixTemplateReference - Reference a template folder from another project
+                            Specify TemplateType="Project" or TemplateType="Item"
+                            TemplatePath is relative to the referenced project directory
+
+    Usage:
+      <VsixProjectTemplate Include="ProjectTemplates\MyTemplate" />
+      <VsixItemTemplate Include="ItemTemplates\MyItem" />
+      <VsixTemplateZip Include="Templates\PreBuilt.zip" TemplateType="Project" />
+      <VsixTemplateReference Include="..\MyTemplateProject\MyTemplateProject.csproj"
+                             TemplateType="Project"
+                             TemplatePath="Templates\MyProjectTemplate" />
+  -->
+
+  <ItemDefinitionGroup>
+    <VsixProjectTemplate>
+      <!-- Default output subfolder within ProjectTemplates in the VSIX -->
+      <TargetSubPath></TargetSubPath>
+    </VsixProjectTemplate>
+
+    <VsixItemTemplate>
+      <!-- Default output subfolder within ItemTemplates in the VSIX -->
+      <TargetSubPath></TargetSubPath>
+    </VsixItemTemplate>
+
+    <VsixTemplateZip>
+      <!-- Must specify Project or Item -->
+      <TemplateType></TemplateType>
+      <!-- Optional subfolder within the template type folder -->
+      <TargetSubPath></TargetSubPath>
+    </VsixTemplateZip>
+
+    <VsixTemplateReference>
+      <!-- Must specify Project or Item -->
+      <TemplateType></TemplateType>
+      <!-- Path to the template folder relative to the referenced project -->
+      <TemplatePath></TemplatePath>
+      <!-- Optional subfolder within the template type folder -->
+      <TargetSubPath></TargetSubPath>
+    </VsixTemplateReference>
+  </ItemDefinitionGroup>
+
+</Project>

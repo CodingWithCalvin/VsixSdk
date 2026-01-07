@@ -182,6 +182,9 @@
     <Message Importance="high" Text="Generated Properties/launchSettings.json for F5 debugging" />
   </Target>
 
+  <!-- Import template support targets -->
+  <Import Project="$(MSBuildThisFileDirectory)Sdk.Vsix.Templates.targets" />
+
   <!--
     Import VSSDK targets if available
     This is the key integration point with Microsoft.VSSDK.BuildTools
