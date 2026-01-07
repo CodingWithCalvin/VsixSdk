@@ -34,6 +34,21 @@
       <DependentUpon>VSPackage.resx</DependentUpon>
     </EmbeddedResource>
 
+    <!-- Include Image Manifest files for VS Image Service -->
+    <ImageManifest Include="**/*.imagemanifest"
+                   Condition="'$(EnableDefaultImageManifestItems)' != 'false'"
+                   Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </ImageManifest>
+
+    <!-- Include Content Manifest files -->
+    <Content Include="**/ContentManifest.json"
+             Condition="'$(EnableDefaultContentManifestItems)' != 'false'"
+             Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
   </ItemGroup>
 
   <PropertyGroup>
