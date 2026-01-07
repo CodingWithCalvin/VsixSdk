@@ -87,7 +87,7 @@ jobs:
       # VSIX Verification - Check that VSIX files contain expected content
       - name: Verify E2E.Minimal VSIX
         run: |
-          $vsix = "tests/e2e/E2E.Minimal/bin/Release/E2E.Minimal.vsix"
+          $vsix = "tests/e2e/E2E.Minimal/bin/Release/net472/E2E.Minimal.vsix"
           if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
           Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Minimal/vsix-contents" -Force
           $files = Get-ChildItem -Path "tests/e2e/E2E.Minimal/vsix-contents" -Recurse -File | Select-Object -ExpandProperty Name
@@ -97,7 +97,7 @@ jobs:
 
       - name: Verify E2E.Templates.AutoDiscovery VSIX
         run: |
-          $vsix = "tests/e2e/E2E.Templates.AutoDiscovery/bin/Release/E2E.Templates.AutoDiscovery.vsix"
+          $vsix = "tests/e2e/E2E.Templates.AutoDiscovery/bin/Release/net472/E2E.Templates.AutoDiscovery.vsix"
           if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
           Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Templates.AutoDiscovery/vsix-contents" -Force
           $files = Get-ChildItem -Path "tests/e2e/E2E.Templates.AutoDiscovery/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
@@ -107,7 +107,7 @@ jobs:
 
       - name: Verify E2E.AllFeatures VSIX
         run: |
-          $vsix = "tests/e2e/E2E.AllFeatures/bin/Release/E2E.AllFeatures.vsix"
+          $vsix = "tests/e2e/E2E.AllFeatures/bin/Release/net472/E2E.AllFeatures.vsix"
           if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
           Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.AllFeatures/vsix-contents" -Force
           $files = Get-ChildItem -Path "tests/e2e/E2E.AllFeatures/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
