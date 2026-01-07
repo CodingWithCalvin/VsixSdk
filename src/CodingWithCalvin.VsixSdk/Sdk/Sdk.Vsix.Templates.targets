@@ -37,6 +37,28 @@
         <_TemplateFolderName>%(_DiscoveredItemTemplateFiles.Filename)</_TemplateFolderName>
       </VsixItemTemplate>
     </ItemGroup>
+
+    <!--
+      Include all files from discovered template folders in the VSIX.
+      Templates are added as folders (not zipped) for VSSDK compatibility.
+    -->
+    <ItemGroup Condition="'@(_DiscoveredProjectTemplateFiles)' != ''">
+      <_ProjectTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)\**\*" />
+      <Content Include="@(_ProjectTemplateFiles)">
+        <IncludeInVSIX>true</IncludeInVSIX>
+        <VSIXSubPath>$(VsixProjectTemplatesFolder)\%(RecursiveDir)</VSIXSubPath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup Condition="'@(_DiscoveredItemTemplateFiles)' != ''">
+      <_ItemTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)\**\*" />
+      <Content Include="@(_ItemTemplateFiles)">
+        <IncludeInVSIX>true</IncludeInVSIX>
+        <VSIXSubPath>$(VsixItemTemplatesFolder)\%(RecursiveDir)</VSIXSubPath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
   </Target>
 
   <!--
