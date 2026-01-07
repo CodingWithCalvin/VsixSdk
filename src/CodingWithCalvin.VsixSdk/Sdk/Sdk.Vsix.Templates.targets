@@ -70,11 +70,17 @@
         <_ZipOutputPath>$(_VsixTemplateIntermediateOutputPath)ItemTemplates\%(VsixItemTemplate.TargetSubPath)</_ZipOutputPath>
       </VsixItemTemplate>
 
-      <!-- Compute paths for template references -->
+      <!-- Compute paths for template references - Step 1: Get directory and folder name -->
       <VsixTemplateReference>
         <_ReferencedProjectDir>$([System.IO.Path]::GetDirectoryName('%(Identity)'))</_ReferencedProjectDir>
-        <_FullTemplatePath>%(VsixTemplateReference._ReferencedProjectDir)\%(VsixTemplateReference.TemplatePath)</_FullTemplatePath>
         <_TemplateFolderName>$([System.IO.Path]::GetFileName('%(VsixTemplateReference.TemplatePath)'))</_TemplateFolderName>
+      </VsixTemplateReference>
+    </ItemGroup>
+
+    <!-- Step 2: Compute full path and zip info using metadata from Step 1 -->
+    <ItemGroup>
+      <VsixTemplateReference>
+        <_FullTemplatePath>%(VsixTemplateReference._ReferencedProjectDir)\%(VsixTemplateReference.TemplatePath)</_FullTemplatePath>
         <_ZipFileName>%(VsixTemplateReference._TemplateFolderName).zip</_ZipFileName>
         <_ZipOutputPath Condition="'%(VsixTemplateReference.TemplateType)' == 'Project'">$(_VsixTemplateIntermediateOutputPath)ProjectTemplates\%(VsixTemplateReference.TargetSubPath)</_ZipOutputPath>
         <_ZipOutputPath Condition="'%(VsixTemplateReference.TemplateType)' == 'Item'">$(_VsixTemplateIntermediateOutputPath)ItemTemplates\%(VsixTemplateReference.TargetSubPath)</_ZipOutputPath>
