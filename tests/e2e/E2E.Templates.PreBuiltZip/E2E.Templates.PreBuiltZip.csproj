@@ -12,6 +12,8 @@
     <Version>1.0.0</Version>
     <!-- Disable auto-discovery - we're using pre-built zips -->
     <EnableDefaultVsixTemplateItems>false</EnableDefaultVsixTemplateItems>
+    <!-- Exclude template source files from compilation (they contain VS template placeholders) -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);TemplateSource\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

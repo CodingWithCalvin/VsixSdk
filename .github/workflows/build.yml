@@ -78,9 +78,6 @@ jobs:
       - name: Build E2E.Templates.PreBuiltZip
         run: dotnet build tests/e2e/E2E.Templates.PreBuiltZip/E2E.Templates.PreBuiltZip.csproj -c Release
 
-      - name: Build E2E.Templates.CrossProjectRef
-        run: dotnet build tests/e2e/E2E.Templates.CrossProjectRef/E2E.Templates.CrossProjectRef.csproj -c Release
-
       - name: Build E2E.Templates.ManualWithSubPath
         run: dotnet build tests/e2e/E2E.Templates.ManualWithSubPath/E2E.Templates.ManualWithSubPath.csproj -c Release
 

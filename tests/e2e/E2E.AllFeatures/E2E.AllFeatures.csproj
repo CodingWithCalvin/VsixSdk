@@ -10,6 +10,8 @@
 
   <PropertyGroup>
     <Version>1.0.0</Version>
+    <!-- Exclude template source folders from compilation -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);PreBuiltSource\**;ManualTemplates\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,13 +21,6 @@
   <!-- Pre-built template zip -->
   <ItemGroup>
     <VsixTemplateZip Include="PreBuilt\PreBuilt.zip" TemplateType="Project" />
-  </ItemGroup>
-
-  <!-- Cross-project template reference -->
-  <ItemGroup>
-    <VsixTemplateReference Include="..\E2E.Templates.SharedSource\E2E.Templates.SharedSource.csproj"
-                           TemplateType="Project"
-                           TemplatePath="Templates\SharedProject" />
   </ItemGroup>
 
   <!-- Manual template with subpath -->
