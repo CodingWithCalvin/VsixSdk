@@ -18,4 +18,17 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
   </ItemGroup>
 
+  <!-- Include assets referenced in manifest -->
+  <ItemGroup>
+    <Content Include="LICENSE.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="icon.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="preview.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+  </ItemGroup>
+
 </Project>
