@@ -80,6 +80,12 @@
       Source generators already include them - having them on disk is for visibility only
     -->
     <DefaultItemExcludes>$(DefaultItemExcludes);Generated\**</DefaultItemExcludes>
+
+    <!--
+      Exclude VSPackage.resx from default EmbeddedResource includes
+      The SDK adds these with special metadata (MergeWithCTO) in targets
+    -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/VSPackage.resx;**/VSPackage.*.resx</DefaultItemExcludes>
   </PropertyGroup>
 
   <!-- F5 Debugging Configuration -->
