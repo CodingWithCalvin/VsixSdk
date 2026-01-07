@@ -2,23 +2,21 @@
   <!--
     CodingWithCalvin.VsixSdk - Sdk.Vsix.Templates.targets
 
-    Build targets for VSIX template support. Handles:
-    - Auto-discovery of template folders
-    - Zipping folder-based templates
-    - Including templates in VSIX output
+    Template support for VSIX projects. Handles:
+    - Auto-discovery of template folders for validation
+    - Copying templates from referenced projects (VsixTemplateReference)
     - Validation warnings for manifest configuration
-  -->
 
-  <PropertyGroup>
-    <!-- Intermediate folder for zipped templates -->
-    <_VsixTemplateIntermediateOutputPath>$(IntermediateOutputPath)VsixTemplates\</_VsixTemplateIntermediateOutputPath>
-  </PropertyGroup>
+    Note: VSSDK handles template packaging when the manifest contains
+    <Content><ProjectTemplate/></Content> entries. This file provides
+    discovery, cross-project template support, and validation.
+  -->
 
   <!--
-    Auto-discover project and item templates.
-    Discovery must happen in a target because we need to compute additional metadata.
+    Auto-discover project and item templates for validation.
+    VSSDK handles the actual packaging based on manifest Content entries.
   -->
-  <Target Name="DiscoverVsixTemplates" BeforeTargets="PrepareVsixTemplates">
+  <Target Name="DiscoverVsixTemplates" BeforeTargets="GetVsixSourceItems">
     <!-- Find all .vstemplate files in ProjectTemplates subfolders -->
     <ItemGroup Condition="'$(EnableDefaultVsixTemplateItems)' == 'true' and '$(EnableDefaultItems)' != 'false'">
       <_DiscoveredProjectTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)\**\*.vstemplate"
@@ -27,10 +25,9 @@
                                      Condition="Exists('$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)')" />
     </ItemGroup>
 
-    <!-- Create VsixProjectTemplate items - use the parent directory of the .vstemplate file -->
+    <!-- Create VsixProjectTemplate items for validation -->
     <ItemGroup Condition="'@(_DiscoveredProjectTemplateFiles)' != ''">
       <VsixProjectTemplate Include="@(_DiscoveredProjectTemplateFiles->'%(RootDir)%(Directory)')">
-        <!-- Compute folder name from .vstemplate filename by getting its parent folder -->
         <_TemplateFolderName>%(_DiscoveredProjectTemplateFiles.Filename)</_TemplateFolderName>
       </VsixProjectTemplate>
     </ItemGroup>
@@ -40,165 +37,97 @@
         <_TemplateFolderName>%(_DiscoveredItemTemplateFiles.Filename)</_TemplateFolderName>
       </VsixItemTemplate>
     </ItemGroup>
+
+    <!--
+      Include all files from discovered template folders in the VSIX.
+      Templates are added as folders (not zipped) for VSSDK compatibility.
+    -->
+    <ItemGroup Condition="'@(_DiscoveredProjectTemplateFiles)' != ''">
+      <_ProjectTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)\**\*" />
+      <Content Include="@(_ProjectTemplateFiles)">
+        <IncludeInVSIX>true</IncludeInVSIX>
+        <VSIXSubPath>$(VsixProjectTemplatesFolder)\%(RecursiveDir)</VSIXSubPath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup Condition="'@(_DiscoveredItemTemplateFiles)' != ''">
+      <_ItemTemplateFiles Include="$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)\**\*" />
+      <Content Include="@(_ItemTemplateFiles)">
+        <IncludeInVSIX>true</IncludeInVSIX>
+        <VSIXSubPath>$(VsixItemTemplatesFolder)\%(RecursiveDir)</VSIXSubPath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
   </Target>
 
   <!--
-    Exclude template source files from being included as Content in the VSIX.
-    Templates are zipped separately; we don't want loose files.
+    Target: PrepareVsixTemplateReferences
+    Computes paths for template references from other projects.
   -->
-  <PropertyGroup>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(VsixProjectTemplatesFolder)\**</DefaultItemExcludes>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(VsixItemTemplatesFolder)\**</DefaultItemExcludes>
-  </PropertyGroup>
-
-  <!--
-    Target: PrepareVsixTemplates
-    Prepares template items for zipping by computing output paths.
-  -->
-  <Target Name="PrepareVsixTemplates" BeforeTargets="ZipVsixTemplates" DependsOnTargets="DiscoverVsixTemplates">
+  <Target Name="PrepareVsixTemplateReferences"
+          BeforeTargets="CopyVsixTemplateReferences"
+          Condition="'@(VsixTemplateReference)' != ''">
     <ItemGroup>
-      <!-- Compute zip file name and output path for project templates -->
-      <!-- _TemplateFolderName was set during discovery from the .vstemplate filename -->
-      <VsixProjectTemplate>
-        <_ZipFileName>%(VsixProjectTemplate._TemplateFolderName).zip</_ZipFileName>
-        <_ZipOutputPath>$(_VsixTemplateIntermediateOutputPath)ProjectTemplates\%(VsixProjectTemplate.TargetSubPath)</_ZipOutputPath>
-      </VsixProjectTemplate>
-
-      <!-- Compute zip file name and output path for item templates -->
-      <VsixItemTemplate>
-        <_ZipFileName>%(VsixItemTemplate._TemplateFolderName).zip</_ZipFileName>
-        <_ZipOutputPath>$(_VsixTemplateIntermediateOutputPath)ItemTemplates\%(VsixItemTemplate.TargetSubPath)</_ZipOutputPath>
-      </VsixItemTemplate>
-
-      <!-- Compute paths for template references - Step 1: Get directory and folder name -->
+      <!-- Step 1: Get the directory of the referenced project -->
       <VsixTemplateReference>
         <_ReferencedProjectDir>$([System.IO.Path]::GetDirectoryName('%(Identity)'))</_ReferencedProjectDir>
         <_TemplateFolderName>$([System.IO.Path]::GetFileName('%(VsixTemplateReference.TemplatePath)'))</_TemplateFolderName>
       </VsixTemplateReference>
     </ItemGroup>
 
-    <!-- Step 2: Compute full path and zip info using metadata from Step 1 -->
+    <!-- Step 2: Compute full source path -->
     <ItemGroup>
       <VsixTemplateReference>
         <_FullTemplatePath>%(VsixTemplateReference._ReferencedProjectDir)\%(VsixTemplateReference.TemplatePath)</_FullTemplatePath>
-        <_ZipFileName>%(VsixTemplateReference._TemplateFolderName).zip</_ZipFileName>
-        <_ZipOutputPath Condition="'%(VsixTemplateReference.TemplateType)' == 'Project'">$(_VsixTemplateIntermediateOutputPath)ProjectTemplates\%(VsixTemplateReference.TargetSubPath)</_ZipOutputPath>
-        <_ZipOutputPath Condition="'%(VsixTemplateReference.TemplateType)' == 'Item'">$(_VsixTemplateIntermediateOutputPath)ItemTemplates\%(VsixTemplateReference.TargetSubPath)</_ZipOutputPath>
+        <_TargetFolder Condition="'%(VsixTemplateReference.TemplateType)' == 'Project'">$(MSBuildProjectDirectory)\$(VsixProjectTemplatesFolder)\%(VsixTemplateReference._TemplateFolderName)</_TargetFolder>
+        <_TargetFolder Condition="'%(VsixTemplateReference.TemplateType)' == 'Item'">$(MSBuildProjectDirectory)\$(VsixItemTemplatesFolder)\%(VsixTemplateReference._TemplateFolderName)</_TargetFolder>
       </VsixTemplateReference>
     </ItemGroup>
   </Target>
 
   <!--
-    Target: ZipVsixTemplates
-    Creates zip files from template folders.
+    Target: CopyVsixTemplateReferences
+    Copies template folders from referenced projects to the local template folders.
+    VSSDK will then discover and package them based on manifest Content entries.
   -->
-  <Target Name="ZipVsixTemplates"
+  <Target Name="CopyVsixTemplateReferences"
           BeforeTargets="GetVsixSourceItems"
-          DependsOnTargets="PrepareVsixTemplates"
-          Condition="'@(VsixProjectTemplate)' != '' or '@(VsixItemTemplate)' != '' or '@(VsixTemplateReference)' != ''">
+          DependsOnTargets="PrepareVsixTemplateReferences"
+          Condition="'@(VsixTemplateReference)' != ''">
 
-    <!-- Create intermediate output directories -->
-    <MakeDir Directories="$(_VsixTemplateIntermediateOutputPath)ProjectTemplates"
-             Condition="'@(VsixProjectTemplate)' != '' or ('@(VsixTemplateReference)' != '' and '@(VsixTemplateReference->WithMetadataValue('TemplateType', 'Project'))' != '')" />
-    <MakeDir Directories="$(_VsixTemplateIntermediateOutputPath)ItemTemplates"
-             Condition="'@(VsixItemTemplate)' != '' or ('@(VsixTemplateReference)' != '' and '@(VsixTemplateReference->WithMetadataValue('TemplateType', 'Item'))' != '')" />
-
-    <!-- Zip each project template folder -->
-    <ZipDirectory SourceDirectory="%(VsixProjectTemplate.Identity)"
-                  DestinationFile="%(VsixProjectTemplate._ZipOutputPath)%(VsixProjectTemplate._ZipFileName)"
-                  Overwrite="true"
-                  Condition="'@(VsixProjectTemplate)' != ''" />
-
-    <!-- Zip each item template folder -->
-    <ZipDirectory SourceDirectory="%(VsixItemTemplate.Identity)"
-                  DestinationFile="%(VsixItemTemplate._ZipOutputPath)%(VsixItemTemplate._ZipFileName)"
-                  Overwrite="true"
-                  Condition="'@(VsixItemTemplate)' != ''" />
-
-    <!-- Zip each template reference -->
-    <ZipDirectory SourceDirectory="%(VsixTemplateReference._FullTemplatePath)"
-                  DestinationFile="%(VsixTemplateReference._ZipOutputPath)%(VsixTemplateReference._ZipFileName)"
-                  Overwrite="true"
-                  Condition="'@(VsixTemplateReference)' != '' and '%(VsixTemplateReference.TemplateType)' != ''" />
-
-    <Message Importance="normal"
-             Text="Zipped project template: %(VsixProjectTemplate._TemplateFolderName)"
-             Condition="'@(VsixProjectTemplate)' != ''" />
-
-    <Message Importance="normal"
-             Text="Zipped item template: %(VsixItemTemplate._TemplateFolderName)"
-             Condition="'@(VsixItemTemplate)' != ''" />
-
-    <Message Importance="normal"
-             Text="Zipped template reference: %(VsixTemplateReference._TemplateFolderName) from %(VsixTemplateReference.Identity)"
-             Condition="'@(VsixTemplateReference)' != ''" />
-  </Target>
-
-  <!--
-    Target: AddVsixTemplateSourceItems
-    Adds zipped templates to VSIXSourceItem for inclusion in the VSIX.
-  -->
-  <Target Name="AddVsixTemplateSourceItems"
-          BeforeTargets="GetVsixSourceItems"
-          AfterTargets="ZipVsixTemplates"
-          DependsOnTargets="ZipVsixTemplates">
-
-    <ItemGroup>
-      <!-- Add zipped project templates -->
-      <VSIXSourceItem Include="%(VsixProjectTemplate._ZipOutputPath)%(VsixProjectTemplate._ZipFileName)"
-                      Condition="'@(VsixProjectTemplate)' != ''">
-        <VSIXSubPath>ProjectTemplates\%(VsixProjectTemplate.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
-
-      <!-- Add zipped item templates -->
-      <VSIXSourceItem Include="%(VsixItemTemplate._ZipOutputPath)%(VsixItemTemplate._ZipFileName)"
-                      Condition="'@(VsixItemTemplate)' != ''">
-        <VSIXSubPath>ItemTemplates\%(VsixItemTemplate.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
-
-      <!-- Add pre-built template zips (project templates) -->
-      <VSIXSourceItem Include="%(VsixTemplateZip.Identity)"
-                      Condition="'@(VsixTemplateZip)' != '' and '%(VsixTemplateZip.TemplateType)' == 'Project'">
-        <VSIXSubPath>ProjectTemplates\%(VsixTemplateZip.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
-
-      <!-- Add pre-built template zips (item templates) -->
-      <VSIXSourceItem Include="%(VsixTemplateZip.Identity)"
-                      Condition="'@(VsixTemplateZip)' != '' and '%(VsixTemplateZip.TemplateType)' == 'Item'">
-        <VSIXSubPath>ItemTemplates\%(VsixTemplateZip.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
-
-      <!-- Add template references (project templates) -->
-      <VSIXSourceItem Include="%(VsixTemplateReference._ZipOutputPath)%(VsixTemplateReference._ZipFileName)"
-                      Condition="'@(VsixTemplateReference)' != '' and '%(VsixTemplateReference.TemplateType)' == 'Project'">
-        <VSIXSubPath>ProjectTemplates\%(VsixTemplateReference.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
-
-      <!-- Add template references (item templates) -->
-      <VSIXSourceItem Include="%(VsixTemplateReference._ZipOutputPath)%(VsixTemplateReference._ZipFileName)"
-                      Condition="'@(VsixTemplateReference)' != '' and '%(VsixTemplateReference.TemplateType)' == 'Item'">
-        <VSIXSubPath>ItemTemplates\%(VsixTemplateReference.TargetSubPath)</VSIXSubPath>
-        <Ngen>false</Ngen>
-      </VSIXSourceItem>
+    <!-- Copy each template reference to the appropriate template folder -->
+    <ItemGroup Condition="'@(VsixTemplateReference)' != ''">
+      <_TemplateFilesToCopy Include="%(VsixTemplateReference._FullTemplatePath)\**\*">
+        <_DestinationFolder>%(VsixTemplateReference._TargetFolder)</_DestinationFolder>
+        <_SourceFolder>%(VsixTemplateReference._FullTemplatePath)</_SourceFolder>
+        <_VsixSubPathBase Condition="'%(VsixTemplateReference.TemplateType)' == 'Project'">$(VsixProjectTemplatesFolder)\%(VsixTemplateReference._TemplateFolderName)</_VsixSubPathBase>
+        <_VsixSubPathBase Condition="'%(VsixTemplateReference.TemplateType)' == 'Item'">$(VsixItemTemplatesFolder)\%(VsixTemplateReference._TemplateFolderName)</_VsixSubPathBase>
+      </_TemplateFilesToCopy>
     </ItemGroup>
-  </Target>
 
-  <!--
-    Target: ValidateVsixTemplateZipItems
-    Warns if VsixTemplateZip items don't specify a TemplateType.
-  -->
-  <Target Name="ValidateVsixTemplateZipItems"
-          BeforeTargets="GetVsixSourceItems"
-          Condition="'@(VsixTemplateZip)' != ''">
+    <Copy SourceFiles="@(_TemplateFilesToCopy)"
+          DestinationFiles="@(_TemplateFilesToCopy->'%(_DestinationFolder)\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'@(_TemplateFilesToCopy)' != ''" />
 
-    <Warning Code="VSIXSDK010"
-             Text="VsixTemplateZip item '%(VsixTemplateZip.Identity)' does not specify TemplateType. Set TemplateType to 'Project' or 'Item'."
-             Condition="'%(VsixTemplateZip.TemplateType)' == ''" />
+    <!--
+      Add copied files as Content items so VSSDK includes them in the VSIX.
+      VSSDK evaluates file globs at evaluation time, but we copy during target execution,
+      so we need to explicitly add these files for VSSDK to discover them.
+      Set VSIXSubPath to place files at the correct relative path in the VSIX.
+    -->
+    <ItemGroup Condition="'@(_TemplateFilesToCopy)' != ''">
+      <Content Include="@(_TemplateFilesToCopy->'%(_DestinationFolder)\%(RecursiveDir)%(Filename)%(Extension)')">
+        <IncludeInVSIX>true</IncludeInVSIX>
+        <VSIXSubPath>%(_VsixSubPathBase)\%(RecursiveDir)</VSIXSubPath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <Message Importance="normal"
+             Text="Copied template reference: %(VsixTemplateReference._TemplateFolderName) from %(VsixTemplateReference._FullTemplatePath)"
+             Condition="'@(VsixTemplateReference)' != ''" />
   </Target>
 
   <!--
@@ -206,7 +135,7 @@
     Warns if VsixTemplateReference items are missing required metadata.
   -->
   <Target Name="ValidateVsixTemplateReferenceItems"
-          BeforeTargets="GetVsixSourceItems"
+          BeforeTargets="PrepareVsixTemplateReferences"
           Condition="'@(VsixTemplateReference)' != ''">
 
     <Warning Code="VSIXSDK013"
@@ -220,11 +149,11 @@
 
   <!--
     Target: WarnMissingManifestContent
-    Warns if templates are defined but the manifest might not have Content entries.
-    This is a reminder since the manifest must declare template content for VS to find them.
+    Warns if templates are discovered but the manifest doesn't have Content entries.
+    VSSDK requires these entries to properly package and register templates.
   -->
   <Target Name="WarnMissingManifestContent"
-          AfterTargets="ZipVsixTemplates"
+          AfterTargets="DiscoverVsixTemplates;CopyVsixTemplateReferences"
           Condition="('@(VsixProjectTemplate)' != '' or '@(VsixItemTemplate)' != '' or '@(VsixTemplateReference)' != '') and '$(_SourceVsixManifestPath)' != ''">
 
     <!-- Determine if we have any project or item templates -->
@@ -255,14 +184,6 @@
     <Warning Code="VSIXSDK012"
              Text="Item templates are defined but no &lt;ItemTemplate&gt; entries found in manifest Content section. Add &lt;ItemTemplate Path=&quot;ItemTemplates&quot;/&gt; to your vsixmanifest."
              Condition="'$(_HasItemTemplates)' == 'true' and '@(_ManifestItemTemplates)' == ''" />
-  </Target>
-
-  <!--
-    Target: CleanVsixTemplates
-    Cleans up intermediate template files.
-  -->
-  <Target Name="CleanVsixTemplates" AfterTargets="Clean">
-    <RemoveDir Directories="$(_VsixTemplateIntermediateOutputPath)" />
   </Target>
 
 </Project>

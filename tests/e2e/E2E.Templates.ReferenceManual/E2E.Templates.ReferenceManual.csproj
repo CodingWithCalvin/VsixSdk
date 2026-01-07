@@ -1,0 +1,31 @@
+<!--
+  E2E.Templates.ReferenceManual - Tests VsixTemplateReference with manual manifest configuration.
+
+  Validates:
+  - VsixTemplateReference works when AutoInjectVsixTemplateContent=false
+  - Manual Content entries in manifest are respected
+  - Templates are properly included in VSIX via VSSDK
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Exclude shared template folder from compilation (contains VS placeholders) -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);SharedTemplates\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <!-- Reference templates from the SharedTemplates project -->
+  <ItemGroup>
+    <VsixTemplateReference Include="SharedTemplates\SharedTemplates.csproj"
+                           TemplateType="Project"
+                           TemplatePath="ProjectTemplate" />
+    <VsixTemplateReference Include="SharedTemplates\SharedTemplates.csproj"
+                           TemplateType="Item"
+                           TemplatePath="ItemTemplate" />
+  </ItemGroup>
+
+</Project>

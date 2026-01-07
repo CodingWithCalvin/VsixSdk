@@ -11,16 +11,11 @@
   <PropertyGroup>
     <Version>1.0.0</Version>
     <!-- Exclude template source folders from compilation -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);PreBuiltSource\**;ManualTemplates\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);ManualTemplates\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
-  </ItemGroup>
-
-  <!-- Pre-built template zip -->
-  <ItemGroup>
-    <VsixTemplateZip Include="PreBuilt\PreBuilt.zip" TemplateType="Project" />
   </ItemGroup>
 
   <!-- Manual template with subpath -->
@@ -32,14 +27,5 @@
   <ItemGroup>
     <PkgDefToMerge Include="CustomSettings.pkgdef" />
   </ItemGroup>
-
-  <!-- Target to create pre-built zip if needed -->
-  <Target Name="CreatePreBuiltZip" BeforeTargets="PrepareForBuild">
-    <MakeDir Directories="PreBuilt" Condition="!Exists('PreBuilt')" />
-    <ZipDirectory SourceDirectory="PreBuiltSource\PreBuiltProject"
-                  DestinationFile="PreBuilt\PreBuilt.zip"
-                  Overwrite="true"
-                  Condition="Exists('PreBuiltSource\PreBuiltProject') and !Exists('PreBuilt\PreBuilt.zip')" />
-  </Target>
 
 </Project>

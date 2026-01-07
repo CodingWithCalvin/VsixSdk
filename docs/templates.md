@@ -6,19 +6,30 @@ This document explains how to include Visual Studio project templates and item t
 
 The built-in VSIX Manifest Designer in Visual Studio cannot enumerate SDK-style projects when adding template assets. This is because the designer uses legacy DTE extenders that are registered for the old project system, not the Common Project System (CPS) used by SDK-style projects.
 
-Additionally, SDK-style projects don't define the `TemplateProjectOutputGroup` and `ItemTemplateOutputGroup` MSBuild output groups that VSSDK expects for template assets.
+This SDK provides MSBuild-based template support that works around these limitations by:
+- Auto-discovering templates in standard folders
+- Supporting cross-project template references
+- Providing validation warnings for missing manifest Content entries
 
-This SDK provides MSBuild-based template support that bypasses these limitations entirely.
+## How It Works
+
+This SDK handles template packaging by:
+
+1. **Auto-discovering** templates in `ProjectTemplates/` and `ItemTemplates/` folders
+2. **Including template files** in the VSIX package automatically
+3. **Supporting cross-project template references** for including templates from other SDK-style projects
+4. **Providing validation warnings** if your manifest is missing required Content entries
+
+Your manifest must contain `<Content><ProjectTemplate/></Content>` entries for Visual Studio to register and display templates. The SDK includes the template files in the VSIX; the manifest entries tell VS how to find and register them.
 
 ## Item Types
 
-The SDK provides four item types for including templates:
+The SDK provides the following item types for templates:
 
 | Item Type | Description |
 |-----------|-------------|
-| `VsixProjectTemplate` | A folder containing a `.vstemplate` file for a project template |
-| `VsixItemTemplate` | A folder containing a `.vstemplate` file for an item template |
-| `VsixTemplateZip` | A pre-built template zip file |
+| `VsixProjectTemplate` | (Auto-discovered) A folder containing a `.vstemplate` file for a project template |
+| `VsixItemTemplate` | (Auto-discovered) A folder containing a `.vstemplate` file for an item template |
 | `VsixTemplateReference` | Reference a template folder from another project |
 
 ## Auto-Discovery
@@ -45,10 +56,12 @@ MyExtension/
       MyClass.cs
 ```
 
-With this structure, no additional configuration is needed. The SDK will:
+With this structure, minimal configuration is needed. The SDK will:
 1. Find the templates automatically
-2. Zip each template folder during build
-3. Include the zips in the VSIX at `ProjectTemplates/` and `ItemTemplates/`
+2. Include all template files in the VSIX
+3. Warn if `<Content>` entries are missing from the manifest
+
+You need to add the Content entries to your manifest manually (see Manifest Configuration below).
 
 ### Disabling Auto-Discovery
 
@@ -71,33 +84,9 @@ To use different folder names:
 </PropertyGroup>
 ```
 
-## Manual Template Configuration
+## Cross-Project Template References
 
-### Folder-Based Templates
-
-If your templates are in non-standard locations, add them explicitly:
-
-```xml
-<ItemGroup>
-  <VsixProjectTemplate Include="MyTemplates\ConsoleApp" />
-  <VsixItemTemplate Include="MyTemplates\NewClass" />
-</ItemGroup>
-```
-
-### Pre-Built Template Zips
-
-If you have pre-built template zip files:
-
-```xml
-<ItemGroup>
-  <VsixTemplateZip Include="Templates\MyTemplate.zip" TemplateType="Project" />
-  <VsixTemplateZip Include="Templates\MyItem.zip" TemplateType="Item" />
-</ItemGroup>
-```
-
-### Template References
-
-To include a template from another project in your solution:
+When you have templates in a separate SDK-style project that the VSIX Manifest Designer cannot enumerate, use `VsixTemplateReference`:
 
 ```xml
 <ItemGroup>
@@ -106,6 +95,10 @@ To include a template from another project in your solution:
                          TemplatePath="Templates\MyProjectTemplate" />
 </ItemGroup>
 ```
+
+The SDK will:
+1. Copy the template folder from the referenced project to your local `ProjectTemplates/` or `ItemTemplates/` folder
+2. Include the copied template files in the VSIX
 
 The `TemplatePath` is relative to the referenced project's directory.
 
@@ -120,23 +113,9 @@ Visual Studio requires `<Content>` entries in your `.vsixmanifest` to register t
 </Content>
 ```
 
-The SDK will emit warnings if you have templates defined but missing manifest entries:
+The SDK will emit warnings if you have templates but missing manifest entries:
 - **VSIXSDK011**: Project templates defined but no `<ProjectTemplate>` in manifest
 - **VSIXSDK012**: Item templates defined but no `<ItemTemplate>` in manifest
-
-## Target Subfolders
-
-To organize templates into subfolders within the VSIX:
-
-```xml
-<ItemGroup>
-  <!-- Will be placed at ProjectTemplates/CSharp/ -->
-  <VsixProjectTemplate Include="ProjectTemplates\MyTemplate" TargetSubPath="CSharp" />
-
-  <!-- Will be placed at ItemTemplates/Web/ -->
-  <VsixItemTemplate Include="ItemTemplates\MyItem" TargetSubPath="Web" />
-</ItemGroup>
-```
 
 ## Complete Example
 
@@ -149,7 +128,9 @@ To organize templates into subfolders within the VSIX:
     <Version>1.0.0</Version>
   </PropertyGroup>
 
-  <!-- Templates are auto-discovered, but you can add more explicitly -->
+  <!-- Templates in ProjectTemplates/ and ItemTemplates/ are auto-discovered -->
+
+  <!-- Include templates from another SDK-style project -->
   <ItemGroup>
     <VsixTemplateReference Include="..\SharedTemplates\SharedTemplates.csproj"
                            TemplateType="Project"
@@ -160,6 +141,8 @@ To organize templates into subfolders within the VSIX:
 ```
 
 ### Manifest File
+
+Add the `<Content>` entries for your templates:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -206,7 +189,6 @@ To organize templates into subfolders within the VSIX:
 
 | Code | Description |
 |------|-------------|
-| VSIXSDK010 | `VsixTemplateZip` item missing `TemplateType` metadata |
 | VSIXSDK011 | Project templates defined but no `<ProjectTemplate>` in manifest |
 | VSIXSDK012 | Item templates defined but no `<ItemTemplate>` in manifest |
 | VSIXSDK013 | `VsixTemplateReference` item missing `TemplateType` metadata |
@@ -217,7 +199,7 @@ To organize templates into subfolders within the VSIX:
 ### Templates not appearing in Visual Studio
 
 1. Ensure your manifest has the appropriate `<Content>` entries
-2. Check that the template zip files are included in the VSIX (open the .vsix as a zip)
+2. Check that the template folders are included in the VSIX (open the .vsix as a zip)
 3. Verify the `.vstemplate` file has correct `<ProjectType>` or `<TemplateGroupID>`
 4. Reset the Visual Studio template cache: delete `%LocalAppData%\Microsoft\VisualStudio\<version>\ComponentModelCache`
 
@@ -225,6 +207,9 @@ To organize templates into subfolders within the VSIX:
 
 Ensure the template folder exists and contains a `.vstemplate` file. For `VsixTemplateReference`, verify the `TemplatePath` is correct relative to the referenced project.
 
-### Templates in wrong location in VSIX
+### Cross-project templates not working
 
-Check the `TargetSubPath` metadata if you're using custom paths. By default, templates are placed directly in `ProjectTemplates/` or `ItemTemplates/`.
+1. Verify the referenced project path is correct
+2. Check that `TemplateType` is set to `Project` or `Item`
+3. Ensure `TemplatePath` points to a folder containing a `.vstemplate` file
+4. The template folder will be copied to your local `ProjectTemplates/` or `ItemTemplates/` folder during build

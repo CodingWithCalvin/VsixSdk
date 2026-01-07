@@ -1,0 +1,18 @@
+<!--
+  SharedTemplates - A library project containing templates to be referenced.
+  This simulates an SDK-style project that the VSIX Manifest Designer cannot enumerate.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- This project exists only to hold templates, no code output needed -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <!-- Exclude template files from compilation (they contain VS placeholders) -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);ProjectTemplate\**;ItemTemplate\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+</Project>
