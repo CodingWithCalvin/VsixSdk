@@ -75,8 +75,11 @@ jobs:
       - name: Build E2E.Templates.AutoDiscovery
         run: dotnet build tests/e2e/E2E.Templates.AutoDiscovery/E2E.Templates.AutoDiscovery.csproj -c Release
 
-      - name: Build E2E.Templates.PreBuiltZip
-        run: dotnet build tests/e2e/E2E.Templates.PreBuiltZip/E2E.Templates.PreBuiltZip.csproj -c Release
+      - name: Build E2E.Templates.Reference
+        run: dotnet build tests/e2e/E2E.Templates.Reference/E2E.Templates.Reference.csproj -c Release
+
+      - name: Build E2E.Templates.ReferenceManual
+        run: dotnet build tests/e2e/E2E.Templates.ReferenceManual/E2E.Templates.ReferenceManual.csproj -c Release
 
       - name: Build E2E.Templates.ManualWithSubPath
         run: dotnet build tests/e2e/E2E.Templates.ManualWithSubPath/E2E.Templates.ManualWithSubPath.csproj -c Release
@@ -105,6 +108,28 @@ jobs:
           if ($files -notcontains "ConsoleApp.vstemplate") { throw "Missing ProjectTemplates/ConsoleApp/ConsoleApp.vstemplate" }
           if ($files -notcontains "NewClass.vstemplate") { throw "Missing ItemTemplates/NewClass/NewClass.vstemplate" }
           Write-Host "E2E.Templates.AutoDiscovery VSIX verified successfully"
+
+      - name: Verify E2E.Templates.Reference VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.Templates.Reference/bin/Release/net472/E2E.Templates.Reference.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Templates.Reference/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.Templates.Reference/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
+          # Verify templates copied from referenced project are included
+          if ($files -notcontains "RefProject.vstemplate") { throw "Missing ProjectTemplates/ProjectTemplate/RefProject.vstemplate" }
+          if ($files -notcontains "RefItem.vstemplate") { throw "Missing ItemTemplates/ItemTemplate/RefItem.vstemplate" }
+          Write-Host "E2E.Templates.Reference VSIX verified successfully"
+
+      - name: Verify E2E.Templates.ReferenceManual VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.Templates.ReferenceManual/bin/Release/net472/E2E.Templates.ReferenceManual.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Templates.ReferenceManual/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.Templates.ReferenceManual/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
+          # Verify templates copied from referenced project are included (manual manifest)
+          if ($files -notcontains "RefProject.vstemplate") { throw "Missing ProjectTemplates/ProjectTemplate/RefProject.vstemplate" }
+          if ($files -notcontains "RefItem.vstemplate") { throw "Missing ItemTemplates/ItemTemplate/RefItem.vstemplate" }
+          Write-Host "E2E.Templates.ReferenceManual VSIX verified successfully"
 
       - name: Verify E2E.AllFeatures VSIX
         run: |

@@ -1,0 +1,32 @@
+<!--
+  E2E.Templates.Reference - Tests VsixTemplateReference for cross-project templates.
+
+  Validates:
+  - VsixTemplateReference copies project templates from referenced projects
+  - VsixTemplateReference copies item templates from referenced projects
+  - Templates are properly included in VSIX via VSSDK
+  - Auto-injection of Content entries into manifest
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Exclude shared template folder from compilation (contains VS placeholders) -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);SharedTemplates\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <!-- Reference templates from the SharedTemplates project -->
+  <ItemGroup>
+    <VsixTemplateReference Include="SharedTemplates\SharedTemplates.csproj"
+                           TemplateType="Project"
+                           TemplatePath="ProjectTemplate" />
+    <VsixTemplateReference Include="SharedTemplates\SharedTemplates.csproj"
+                           TemplateType="Item"
+                           TemplatePath="ItemTemplate" />
+  </ItemGroup>
+
+</Project>

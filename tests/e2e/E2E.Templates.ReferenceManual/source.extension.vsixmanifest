@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="E2E.Templates.PreBuiltZip.00000000-0000-0000-0000-00000000000A" Version="1.0.0" Language="en-US" Publisher="E2E Tests" />
-    <DisplayName>E2E Templates PreBuiltZip Test</DisplayName>
-    <Description xml:space="preserve">E2E test for VsixTemplateZip with pre-built zip files</Description>
+    <Identity Id="E2E.Templates.ReferenceManual.00000000-0000-0000-0000-000000000021" Version="1.0.0" Language="en-US" Publisher="E2E Tests" />
+    <DisplayName>E2E Templates Reference Manual Test</DisplayName>
+    <Description xml:space="preserve">E2E test for VsixTemplateReference with manual manifest Content entries</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
@@ -16,6 +16,7 @@
   <Prerequisites>
     <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,19.0)" DisplayName="Visual Studio core editor" />
   </Prerequisites>
+  <!-- Manual Content entries (auto-inject is disabled for this test) -->
   <Content>
     <ProjectTemplate Path="ProjectTemplates" />
     <ItemTemplate Path="ItemTemplates" />

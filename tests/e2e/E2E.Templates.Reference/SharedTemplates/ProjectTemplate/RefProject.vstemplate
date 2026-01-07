@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
   <TemplateData>
-    <Name>Pre-Built Project Template</Name>
-    <Description>A project template from a pre-built zip</Description>
+    <Name>Referenced Project Template</Name>
+    <Description>A project template from a referenced project</Description>
     <ProjectType>CSharp</ProjectType>
-    <SortOrder>1000</SortOrder>
-    <DefaultName>PreBuiltProject</DefaultName>
+    <DefaultName>RefProject</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
-    <CreateNewFolder>true</CreateNewFolder>
   </TemplateData>
   <TemplateContent>
     <Project File="Project.csproj" ReplaceParameters="true">
-      <ProjectItem ReplaceParameters="true" TargetFileName="Class1.cs">Class1.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true">Class1.cs</ProjectItem>
     </Project>
   </TemplateContent>
 </VSTemplate>

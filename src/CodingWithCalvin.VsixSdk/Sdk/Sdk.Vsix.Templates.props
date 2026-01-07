@@ -2,11 +2,16 @@
   <!--
     CodingWithCalvin.VsixSdk - Sdk.Vsix.Templates.props
 
-    Template support for VSIX projects. Defines item types for including
-    project templates and item templates in VSIX packages.
+    Template support for VSIX projects. Defines properties and item types
+    for including project templates and item templates in VSIX packages.
 
-    This bypasses the broken VSIX Manifest Designer which cannot enumerate
-    SDK-style projects for template assets.
+    Features:
+    - Auto-discovery of templates in ProjectTemplates/ and ItemTemplates/ folders
+    - Cross-project template references via VsixTemplateReference
+    - Validation warnings for missing manifest Content entries
+
+    Note: VSSDK handles the actual template packaging. This SDK provides
+    discovery, validation, and convenience features on top of VSSDK.
   -->
 
   <PropertyGroup>
@@ -28,23 +33,22 @@
   <!--
     Item type definitions:
 
-    VsixProjectTemplate  - A folder containing a .vstemplate file for a project template
-                           Will be zipped and included in the VSIX at ProjectTemplates/
+    VsixProjectTemplate  - (Auto-discovered) A folder containing a .vstemplate file for a project template.
+                           Discovered automatically in the ProjectTemplates/ folder.
+                           VSSDK packages these based on manifest Content entries.
 
-    VsixItemTemplate     - A folder containing a .vstemplate file for an item template
-                           Will be zipped and included in the VSIX at ItemTemplates/
+    VsixItemTemplate     - (Auto-discovered) A folder containing a .vstemplate file for an item template.
+                           Discovered automatically in the ItemTemplates/ folder.
+                           VSSDK packages these based on manifest Content entries.
 
-    VsixTemplateZip      - A pre-built template zip file to include directly
-                           Specify TemplateType="Project" or TemplateType="Item"
-
-    VsixTemplateReference - Reference a template folder from another project
-                            Specify TemplateType="Project" or TemplateType="Item"
-                            TemplatePath is relative to the referenced project directory
+    VsixTemplateReference - Reference a template folder from another project.
+                            Useful when the VSIX Manifest Designer cannot enumerate SDK-style projects.
+                            Templates are copied to the local template folder so VSSDK can package them.
 
     Usage:
-      <VsixProjectTemplate Include="ProjectTemplates\MyTemplate" />
-      <VsixItemTemplate Include="ItemTemplates\MyItem" />
-      <VsixTemplateZip Include="Templates\PreBuilt.zip" TemplateType="Project" />
+      (Templates in ProjectTemplates/ and ItemTemplates/ are auto-discovered)
+
+      (Reference templates from another SDK-style project)
       <VsixTemplateReference Include="..\MyTemplateProject\MyTemplateProject.csproj"
                              TemplateType="Project"
                              TemplatePath="Templates\MyProjectTemplate" />
@@ -60,13 +64,6 @@
       <!-- Default output subfolder within ItemTemplates in the VSIX -->
       <TargetSubPath></TargetSubPath>
     </VsixItemTemplate>
-
-    <VsixTemplateZip>
-      <!-- Must specify Project or Item -->
-      <TemplateType></TemplateType>
-      <!-- Optional subfolder within the template type folder -->
-      <TargetSubPath></TargetSubPath>
-    </VsixTemplateZip>
 
     <VsixTemplateReference>
       <!-- Must specify Project or Item -->

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
   <TemplateData>
-    <Name>Pre-Built Project</Name>
-    <Description>Pre-built zip template in AllFeatures</Description>
+    <Name>Referenced Project Template (Manual)</Name>
+    <Description>A project template from a referenced project (manual manifest)</Description>
     <ProjectType>CSharp</ProjectType>
-    <DefaultName>PreBuiltProject</DefaultName>
+    <DefaultName>RefProject</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
   </TemplateData>
   <TemplateContent>

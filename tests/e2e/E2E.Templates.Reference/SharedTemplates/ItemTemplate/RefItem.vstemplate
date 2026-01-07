@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Referenced Item Template</Name>
+    <Description>An item template from a referenced project</Description>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>RefItem</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true">Item.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
