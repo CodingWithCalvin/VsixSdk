@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <!-- All metadata fields populated to test VsixInfo generator -->
+    <Identity Id="E2E.SourceGenerators.00000000-0000-0000-0000-000000000003" Version="2.5.0" Language="en-US" Publisher="E2E Tests" />
+    <DisplayName>E2E SourceGenerators Test</DisplayName>
+    <Description xml:space="preserve">E2E test for source generators with "quotes" and C:\paths\with\backslashes</Description>
+    <MoreInfo>https://example.com/more-info</MoreInfo>
+    <License>LICENSE.txt</License>
+    <GettingStartedGuide>https://example.com/getting-started</GettingStartedGuide>
+    <ReleaseNotes>https://example.com/release-notes</ReleaseNotes>
+    <Icon>icon.png</Icon>
+    <PreviewImage>preview.png</PreviewImage>
+    <Tags>e2e, test, source-generators</Tags>
+    <Preview>true</Preview>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,19.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgDefProjectOutputGroup|" />
+  </Assets>
+</PackageManifest>

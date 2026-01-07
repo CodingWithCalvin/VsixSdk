@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Auto-Discovered Item</Name>
+    <Description>Auto-discovered item template in AllFeatures</Description>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>AutoItem.cs</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.cs">Item.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

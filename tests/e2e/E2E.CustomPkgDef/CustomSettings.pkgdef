@@ -1,0 +1,9 @@
+; Custom pkgdef file with additional VS settings
+; This file is merged with the auto-generated pkgdef
+
+[$RootKey$\E2E\CustomPkgDef]
+"CustomSetting1"="Value1"
+"CustomSetting2"=dword:00000001
+
+[$RootKey$\E2E\CustomPkgDef\SubKey]
+"NestedSetting"="NestedValue"

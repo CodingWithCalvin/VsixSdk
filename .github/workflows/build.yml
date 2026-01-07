@@ -6,12 +6,14 @@ on:
     paths:
       - 'src/**'
       - 'samples/**'
+      - 'tests/**'
       - '.github/workflows/build.yml'
   pull_request:
     branches: [main]
     paths:
       - 'src/**'
       - 'samples/**'
+      - 'tests/**'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -38,6 +40,81 @@ jobs:
 
       - name: Build Sample Extension
         run: dotnet build samples/SampleExtension/SampleExtension.csproj -c Release
+
+      # E2E Tests - Build all test projects
+      - name: Build E2E.Minimal
+        run: dotnet build tests/e2e/E2E.Minimal/E2E.Minimal.csproj -c Release
+
+      - name: Build E2E.AutoIncludes
+        run: dotnet build tests/e2e/E2E.AutoIncludes/E2E.AutoIncludes.csproj -c Release
+
+      - name: Build E2E.SourceGenerators
+        run: dotnet build tests/e2e/E2E.SourceGenerators/E2E.SourceGenerators.csproj -c Release
+
+      - name: Build E2E.VersionOverride
+        run: dotnet build tests/e2e/E2E.VersionOverride/E2E.VersionOverride.csproj -c Release
+
+      - name: Build E2E.VersionOverride with SetVsixVersion
+        run: dotnet build tests/e2e/E2E.VersionOverride/E2E.VersionOverride.csproj -c Release -p:SetVsixVersion=2.0.0
+
+      - name: Build E2E.CustomPkgDef
+        run: dotnet build tests/e2e/E2E.CustomPkgDef/E2E.CustomPkgDef.csproj -c Release
+
+      - name: Build E2E.ManualPkgDef
+        run: dotnet build tests/e2e/E2E.ManualPkgDef/E2E.ManualPkgDef.csproj -c Release
+
+      - name: Build E2E.ImageAndContentManifest
+        run: dotnet build tests/e2e/E2E.ImageAndContentManifest/E2E.ImageAndContentManifest.csproj -c Release
+
+      - name: Build E2E.Validation (expect warnings)
+        run: dotnet build tests/e2e/E2E.Validation/E2E.Validation.csproj -c Release
+
+      - name: Build E2E.ValidationNoManifest (expect warnings)
+        run: dotnet build tests/e2e/E2E.ValidationNoManifest/E2E.ValidationNoManifest.csproj -c Release
+
+      - name: Build E2E.Templates.AutoDiscovery
+        run: dotnet build tests/e2e/E2E.Templates.AutoDiscovery/E2E.Templates.AutoDiscovery.csproj -c Release
+
+      - name: Build E2E.Templates.PreBuiltZip
+        run: dotnet build tests/e2e/E2E.Templates.PreBuiltZip/E2E.Templates.PreBuiltZip.csproj -c Release
+
+      - name: Build E2E.Templates.ManualWithSubPath
+        run: dotnet build tests/e2e/E2E.Templates.ManualWithSubPath/E2E.Templates.ManualWithSubPath.csproj -c Release
+
+      - name: Build E2E.AllFeatures
+        run: dotnet build tests/e2e/E2E.AllFeatures/E2E.AllFeatures.csproj -c Release
+
+      # VSIX Verification - Check that VSIX files contain expected content
+      - name: Verify E2E.Minimal VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.Minimal/bin/Release/net472/E2E.Minimal.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Minimal/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.Minimal/vsix-contents" -Recurse -File | Select-Object -ExpandProperty Name
+          if ($files -notcontains "extension.vsixmanifest") { throw "Missing extension.vsixmanifest" }
+          if ($files -notcontains "E2E.Minimal.dll") { throw "Missing E2E.Minimal.dll" }
+          Write-Host "E2E.Minimal VSIX verified successfully"
+
+      - name: Verify E2E.Templates.AutoDiscovery VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.Templates.AutoDiscovery/bin/Release/net472/E2E.Templates.AutoDiscovery.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Templates.AutoDiscovery/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.Templates.AutoDiscovery/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
+          # VSSDK default behavior includes templates as folders with .vstemplate files
+          if ($files -notcontains "ConsoleApp.vstemplate") { throw "Missing ProjectTemplates/ConsoleApp/ConsoleApp.vstemplate" }
+          if ($files -notcontains "NewClass.vstemplate") { throw "Missing ItemTemplates/NewClass/NewClass.vstemplate" }
+          Write-Host "E2E.Templates.AutoDiscovery VSIX verified successfully"
+
+      - name: Verify E2E.AllFeatures VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.AllFeatures/bin/Release/net472/E2E.AllFeatures.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.AllFeatures/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.AllFeatures/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
+          if ($files -notcontains "extension.vsixmanifest") { throw "Missing extension.vsixmanifest" }
+          if ($files -notcontains "E2E.AllFeatures.dll") { throw "Missing E2E.AllFeatures.dll" }
+          Write-Host "E2E.AllFeatures VSIX verified successfully"
 
       - name: Test Template - Install
         run: dotnet new install artifacts/packages/CodingWithCalvin.VsixSdk.Templates.1.0.0.nupkg

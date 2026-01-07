@@ -1,0 +1,28 @@
+<!--
+  E2E.Templates.ManualWithSubPath - Tests explicit template items with TargetSubPath.
+
+  Validates:
+  - Manual template includes work
+  - TargetSubPath creates subdirectories (ProjectTemplates/CSharp/)
+  - Custom folder locations work
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Disable auto-discovery - we're using explicit items -->
+    <EnableDefaultVsixTemplateItems>false</EnableDefaultVsixTemplateItems>
+    <!-- Exclude custom template folder from compilation -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);CustomTemplates\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VsixProjectTemplate Include="CustomTemplates\CSharpProject" TargetSubPath="CSharp" />
+    <VsixItemTemplate Include="CustomTemplates\CSharpItem" TargetSubPath="CSharp" />
+  </ItemGroup>
+
+</Project>

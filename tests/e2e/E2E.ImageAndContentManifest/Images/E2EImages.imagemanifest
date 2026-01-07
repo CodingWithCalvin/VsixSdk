@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+  <Symbols>
+    <String Name="Resources" Value="/E2E.ImageAndContentManifest;Component/Images" />
+    <Guid Name="E2EImageGuid" Value="{88888888-8888-8888-8888-888888888888}" />
+    <ID Name="TestIcon" Value="1" />
+    <ID Name="TestImage" Value="2" />
+  </Symbols>
+  <Images>
+    <Image Guid="$(E2EImageGuid)" ID="$(TestIcon)">
+      <Source Uri="$(Resources)/TestIcon.png">
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(E2EImageGuid)" ID="$(TestImage)">
+      <Source Uri="$(Resources)/TestImage.png">
+        <Size Value="32" />
+      </Source>
+    </Image>
+  </Images>
+</ImageManifest>

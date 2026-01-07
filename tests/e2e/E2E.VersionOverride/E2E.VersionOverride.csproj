@@ -1,0 +1,19 @@
+<!--
+  E2E.VersionOverride - Tests version handling and SetVsixVersion.
+
+  Validates:
+  - VsixVersion derived from $(Version) property
+  - dotnet build -p:SetVsixVersion=2.0.0 updates manifest and VSIX
+  - Version appears correctly in output package
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

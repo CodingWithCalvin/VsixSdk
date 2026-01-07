@@ -1,0 +1,25 @@
+<!--
+  E2E.CustomPkgDef - Tests custom .pkgdef file handling.
+
+  Validates:
+  - Custom .pkgdef files included alongside auto-generated pkgdef
+  - PkgDefToMerge item type works correctly
+  - Multiple custom pkgdef files can be merged
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+  <!-- Include custom pkgdef files to merge with auto-generated -->
+  <ItemGroup>
+    <PkgDefToMerge Include="CustomSettings.pkgdef" />
+    <PkgDefToMerge Include="AdditionalRegistrations.pkgdef" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+<!--
+  E2E.ImageAndContentManifest - Tests imagemanifest and ContentManifest.json auto-includes.
+
+  Validates:
+  - .imagemanifest files auto-included with IncludeInVSIX=true
+  - ContentManifest.json files auto-included with correct metadata
+  - Files are included in VSIX output
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

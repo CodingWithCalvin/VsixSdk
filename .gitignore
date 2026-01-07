@@ -51,3 +51,6 @@ CLAUDE.local.md
 Generated/
 VsixInfo.g.cs
 *Vsct.g.cs
+
+# Pre-built template zips (generated during build)
+tests/e2e/*/PreBuilt/

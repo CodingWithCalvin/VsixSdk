@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Auto-Discovered Project</Name>
+    <Description>Auto-discovered project template in AllFeatures</Description>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>AutoProject</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="Project.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true">Class1.cs</ProjectItem>
+    </Project>
+  </TemplateContent>
+</VSTemplate>

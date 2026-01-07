@@ -1,0 +1,20 @@
+<!--
+  E2E.Templates.AutoDiscovery - Tests template auto-discovery in default folders.
+
+  Validates:
+  - Templates in ProjectTemplates/ auto-discovered
+  - Templates in ItemTemplates/ auto-discovered
+  - Templates zipped during build
+  - Zips included in VSIX at correct paths
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>

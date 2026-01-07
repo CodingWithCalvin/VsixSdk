@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <!-- Full metadata to test VsixInfo generator -->
+    <Identity Id="E2E.AllFeatures.00000000-0000-0000-0000-00000000000D" Version="1.0.0" Language="en-US" Publisher="E2E Tests" />
+    <DisplayName>E2E AllFeatures Test</DisplayName>
+    <Description xml:space="preserve">Comprehensive E2E test combining ALL SDK features</Description>
+    <MoreInfo>https://example.com/all-features</MoreInfo>
+    <Tags>e2e, comprehensive, all-features</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,19.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgDefProjectOutputGroup|" />
+  </Assets>
+  <Content>
+    <ProjectTemplate Path="ProjectTemplates" />
+    <ItemTemplate Path="ItemTemplates" />
+  </Content>
+</PackageManifest>

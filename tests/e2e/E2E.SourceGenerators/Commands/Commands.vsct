@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+
+  <Commands package="guidSourceGenPackage">
+    <Groups>
+      <Group guid="guidCommandSet1" id="MenuGroup1" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+      <Group guid="guidCommandSet2" id="MenuGroup2" priority="0x0700">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidCommandSet1" id="Command1Id" priority="0x0100" type="Button">
+        <Parent guid="guidCommandSet1" id="MenuGroup1" />
+        <Strings>
+          <ButtonText>Command 1</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidCommandSet1" id="Command2Id" priority="0x0101" type="Button">
+        <Parent guid="guidCommandSet1" id="MenuGroup1" />
+        <Strings>
+          <ButtonText>Command 2</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidCommandSet2" id="Command3Id" priority="0x0100" type="Button">
+        <Parent guid="guidCommandSet2" id="MenuGroup2" />
+        <Strings>
+          <ButtonText>Command 3</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <!-- Package GUID -->
+    <GuidSymbol name="guidSourceGenPackage" value="{33333333-3333-3333-3333-333333333333}" />
+
+    <!-- First command set with multiple IDs -->
+    <GuidSymbol name="guidCommandSet1" value="{44444444-4444-4444-4444-444444444444}">
+      <IDSymbol name="MenuGroup1" value="0x1020" />
+      <IDSymbol name="Command1Id" value="0x0100" />
+      <IDSymbol name="Command2Id" value="0x0101" />
+    </GuidSymbol>
+
+    <!-- Second command set to test multiple GuidSymbols -->
+    <GuidSymbol name="guidCommandSet2" value="{55555555-5555-5555-5555-555555555555}">
+      <IDSymbol name="MenuGroup2" value="0x1030" />
+      <IDSymbol name="Command3Id" value="0x0200" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>

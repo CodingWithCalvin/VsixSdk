@@ -1,0 +1,23 @@
+<!--
+  E2E.Validation - Tests validation warnings.
+
+  Validates:
+  - x86 PlatformTarget warning triggered
+  - VSIXSDK011 warning (templates without manifest Content entry)
+  - Build still succeeds (warnings, not errors)
+
+  NOTE: This project intentionally triggers warnings for testing purposes.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <!-- Intentionally use x86 to trigger warning -->
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>
