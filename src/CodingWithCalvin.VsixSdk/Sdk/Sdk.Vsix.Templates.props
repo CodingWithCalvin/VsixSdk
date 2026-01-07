@@ -16,6 +16,13 @@
     <!-- Default folders for template discovery -->
     <VsixProjectTemplatesFolder Condition="'$(VsixProjectTemplatesFolder)' == ''">ProjectTemplates</VsixProjectTemplatesFolder>
     <VsixItemTemplatesFolder Condition="'$(VsixItemTemplatesFolder)' == ''">ItemTemplates</VsixItemTemplatesFolder>
+
+    <!--
+      Exclude template folders from default compilation.
+      Template files contain VS template placeholders ($safeprojectname$, etc.)
+      that are not valid C# and should not be compiled as part of the extension.
+    -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(VsixProjectTemplatesFolder)\**;$(VsixItemTemplatesFolder)\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <!--
