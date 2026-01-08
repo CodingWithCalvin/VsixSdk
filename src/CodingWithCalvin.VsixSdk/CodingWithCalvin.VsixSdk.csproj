@@ -43,6 +43,15 @@
     </ProjectReference>
   </ItemGroup>
 
+  <!-- Reference the tasks project -->
+  <ItemGroup>
+    <ProjectReference Include="..\CodingWithCalvin.VsixSdk.Tasks\CodingWithCalvin.VsixSdk.Tasks.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+
   <!-- Include the SDK files in the package at the correct location -->
   <ItemGroup>
     <!-- The Sdk folder must be at the root of the package -->
@@ -52,6 +61,12 @@
     <None Include="..\CodingWithCalvin.VsixSdk.Generators\bin\$(Configuration)\netstandard2.0\CodingWithCalvin.VsixSdk.Generators.dll"
           Pack="true"
           PackagePath="analyzers\dotnet\cs"
+          Visible="false" />
+
+    <!-- Include the MSBuild tasks -->
+    <None Include="..\CodingWithCalvin.VsixSdk.Tasks\bin\$(Configuration)\net472\CodingWithCalvin.VsixSdk.Tasks.dll"
+          Pack="true"
+          PackagePath="build"
           Visible="false" />
 
     <!-- Include README at package root -->

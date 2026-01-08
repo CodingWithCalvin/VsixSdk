@@ -4,6 +4,11 @@
     These add VSIX build behavior without importing Microsoft.NET.Sdk again.
   -->
 
+  <!-- Register the custom task for local development -->
+  <UsingTask TaskName="CodingWithCalvin.VsixSdk.Tasks.InjectVsixManifestContentTask"
+             AssemblyFile="$(CodingWithCalvinVsixSdkRoot)..\CodingWithCalvin.VsixSdk.Tasks\bin\$(Configuration)\net472\CodingWithCalvin.VsixSdk.Tasks.dll"
+             Condition="'$(CodingWithCalvinVsixSdkLocalDev)' == 'true'" />
+
   <!-- Import VSIX-specific item includes and targets -->
   <Import Project="$(CodingWithCalvinVsixSdkRoot)Sdk\Sdk.Vsix.targets" />
 
