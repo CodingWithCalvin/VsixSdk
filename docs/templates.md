@@ -17,10 +17,10 @@ This SDK handles template packaging by:
 
 1. **Auto-discovering** templates in `ProjectTemplates/` and `ItemTemplates/` folders
 2. **Including template files** in the VSIX package automatically
-3. **Supporting cross-project template references** for including templates from other SDK-style projects
-4. **Providing validation warnings** if your manifest is missing required Content entries
+3. **Auto-injecting manifest Content entries** so you don't need to manually edit the manifest
+4. **Supporting cross-project template references** for including templates from other SDK-style projects
 
-Your manifest must contain `<Content><ProjectTemplate/></Content>` entries for Visual Studio to register and display templates. The SDK includes the template files in the VSIX; the manifest entries tell VS how to find and register them.
+Visual Studio requires `<Content><ProjectTemplate/></Content>` entries in the manifest to register and display templates. The SDK automatically injects these entries when templates are discovered, so you don't need to add them manually.
 
 ## Item Types
 
@@ -56,12 +56,10 @@ MyExtension/
       MyClass.cs
 ```
 
-With this structure, minimal configuration is needed. The SDK will:
+With this structure, no additional configuration is needed. The SDK will:
 1. Find the templates automatically
 2. Include all template files in the VSIX
-3. Warn if `<Content>` entries are missing from the manifest
-
-You need to add the Content entries to your manifest manually (see Manifest Configuration below).
+3. Inject the required `<Content>` entries into the manifest automatically
 
 ### Disabling Auto-Discovery
 
@@ -104,7 +102,29 @@ The `TemplatePath` is relative to the referenced project's directory.
 
 ## Manifest Configuration
 
-Visual Studio requires `<Content>` entries in your `.vsixmanifest` to register templates. Add these to your manifest:
+Visual Studio requires `<Content>` entries in your `.vsixmanifest` to register templates. **The SDK automatically injects these entries** when templates are discovered, so you typically don't need to add them manually.
+
+### Automatic Content Injection (Default)
+
+When `AutoInjectVsixTemplateContent` is enabled (the default), the SDK:
+1. Creates an intermediate manifest in the `obj` folder
+2. Injects `<ProjectTemplate Path="ProjectTemplates"/>` if project templates are discovered
+3. Injects `<ItemTemplate Path="ItemTemplates"/>` if item templates are discovered
+4. Uses the intermediate manifest for VSIX packaging (your source manifest is never modified)
+
+This means your source `.vsixmanifest` does not need a `<Content>` section at all when using templates.
+
+### Disabling Auto-Injection
+
+If you prefer to manage the manifest Content entries manually, disable auto-injection:
+
+```xml
+<PropertyGroup>
+  <AutoInjectVsixTemplateContent>false</AutoInjectVsixTemplateContent>
+</PropertyGroup>
+```
+
+When auto-injection is disabled, you must add the Content entries to your manifest manually:
 
 ```xml
 <Content>
@@ -116,6 +136,8 @@ Visual Studio requires `<Content>` entries in your `.vsixmanifest` to register t
 The SDK will emit warnings if you have templates but missing manifest entries:
 - **VSIXSDK011**: Project templates defined but no `<ProjectTemplate>` in manifest
 - **VSIXSDK012**: Item templates defined but no `<ItemTemplate>` in manifest
+
+These warnings only appear when `AutoInjectVsixTemplateContent` is set to `false`.
 
 ## Complete Example
 
@@ -142,7 +164,7 @@ The SDK will emit warnings if you have templates but missing manifest entries:
 
 ### Manifest File
 
-Add the `<Content>` entries for your templates:
+The SDK automatically injects Content entries, so your manifest doesn't need them:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -157,10 +179,7 @@ Add the `<Content>` entries for your templates:
       <ProductArchitecture>amd64</ProductArchitecture>
     </InstallationTarget>
   </Installation>
-  <Content>
-    <ProjectTemplate Path="ProjectTemplates" />
-    <ItemTemplate Path="ItemTemplates" />
-  </Content>
+  <!-- Content entries are auto-injected by the SDK -->
 </PackageManifest>
 ```
 
@@ -198,10 +217,11 @@ Add the `<Content>` entries for your templates:
 
 ### Templates not appearing in Visual Studio
 
-1. Ensure your manifest has the appropriate `<Content>` entries
-2. Check that the template folders are included in the VSIX (open the .vsix as a zip)
+1. Check that the template folders are included in the VSIX (open the .vsix as a zip)
+2. Verify the intermediate manifest (`obj/*/source.extension.vsixmanifest`) contains the `<Content>` entries
 3. Verify the `.vstemplate` file has correct `<ProjectType>` or `<TemplateGroupID>`
 4. Reset the Visual Studio template cache: delete `%LocalAppData%\Microsoft\VisualStudio\<version>\ComponentModelCache`
+5. If using `AutoInjectVsixTemplateContent=false`, ensure your source manifest has the `<Content>` entries
 
 ### Build errors about missing template folders
 
