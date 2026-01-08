@@ -296,6 +296,8 @@ The SDK automatically includes common VSIX files:
 - 📄 `*.vsct` files as `VSCTCompile` items
 - 📄 `VSPackage.resx` files with proper metadata
 - 📄 `source.extension.vsixmanifest` as an `AdditionalFile` for source generators
+- 📄 `*.imagemanifest` files as `ImageManifest` items (for VS Image Service)
+- 📄 `ContentManifest.json` files as `Content` items (for VS content registration)
 
 ### 🐛 F5 Debugging
 
@@ -306,6 +308,59 @@ Press F5 to launch the Visual Studio Experimental Instance with your extension l
 ### 🚀 Smart Deployment
 
 Extensions are only deployed to the Experimental Instance when building inside Visual Studio. This prevents errors when building from the command line.
+
+### 📦 VS Project and Item Templates
+
+The SDK provides comprehensive support for including Visual Studio project and item templates in your VSIX package.
+
+#### Auto-Discovery
+
+Place templates in `ProjectTemplates/` or `ItemTemplates/` folders and they'll be automatically discovered and packaged:
+
+```
+MyExtension/
+├── ProjectTemplates/
+│   └── MyProjectTemplate/
+│       ├── MyProject.csproj
+│       ├── Class1.cs
+│       └── MyTemplate.vstemplate
+├── ItemTemplates/
+│   └── MyItemTemplate/
+│       ├── MyItem.cs
+│       └── MyItem.vstemplate
+└── source.extension.vsixmanifest
+```
+
+The SDK automatically:
+1. Discovers `.vstemplate` files in these folders
+2. Injects the required `<Content>` entries into the manifest (via intermediate file)
+3. Includes all template files in the VSIX
+
+#### Cross-Project Template References
+
+Reference templates from other SDK-style projects using `VsixTemplateReference`:
+
+```xml
+<ItemGroup>
+  <VsixTemplateReference Include="..\MyTemplateProject\MyTemplateProject.csproj"
+                         TemplateType="Project"
+                         TemplatePath="Templates\MyProjectTemplate" />
+</ItemGroup>
+```
+
+This is useful when the VSIX Manifest Designer cannot enumerate SDK-style projects.
+
+#### Disabling Auto-Injection
+
+If you prefer to manage manifest Content entries manually:
+
+```xml
+<PropertyGroup>
+  <AutoInjectVsixTemplateContent>false</AutoInjectVsixTemplateContent>
+</PropertyGroup>
+```
+
+When disabled, build warnings (VSIXSDK011, VSIXSDK012) will alert you if templates are discovered but the manifest lacks the corresponding `<Content>` entries.
 
 ## ⚙️ Configuration
 
@@ -318,6 +373,10 @@ Extensions are only deployed to the Experimental Instance when building inside V
 | `GeneratePkgDefFile` | `true` | Generate .pkgdef registration file |
 | `DeployExtension` | `true`* | Deploy to experimental instance |
 | `EnableDefaultVsixItems` | `true` | Auto-include VSIX-related files |
+| `EnableDefaultVsixTemplateItems` | `true` | Auto-discover templates in ProjectTemplates/ItemTemplates folders |
+| `AutoInjectVsixTemplateContent` | `true` | Auto-inject Content entries into manifest for discovered templates |
+| `VsixProjectTemplatesFolder` | `ProjectTemplates` | Folder for project templates |
+| `VsixItemTemplatesFolder` | `ItemTemplates` | Folder for item templates |
 | `EmitCompilerGeneratedFiles` | `true` | Write generated source files to disk |
 | `CompilerGeneratedFilesOutputPath` | `Generated/` | Location for generated source files |
 
@@ -339,6 +398,9 @@ Or disable specific categories:
 <PropertyGroup>
   <EnableDefaultVsctItems>false</EnableDefaultVsctItems>
   <EnableDefaultVSPackageResourceItems>false</EnableDefaultVSPackageResourceItems>
+  <EnableDefaultImageManifestItems>false</EnableDefaultImageManifestItems>
+  <EnableDefaultContentManifestItems>false</EnableDefaultContentManifestItems>
+  <EnableDefaultVsixTemplateItems>false</EnableDefaultVsixTemplateItems>
 </PropertyGroup>
 ```
 
@@ -354,6 +416,32 @@ Or disable specific categories:
 
 - Visual Studio 2022 or later
 - .NET Framework 4.7.2+ target framework
+
+### NuGet Central Package Management (CPM)
+
+The SDK is fully compatible with [NuGet Central Package Management](https://learn.microsoft.com/nuget/consume-packages/central-package-management). When using CPM, define your package versions in `Directory.Packages.props`:
+
+```xml
+<!-- Directory.Packages.props -->
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+    <PackageVersion Include="Microsoft.VSSDK.BuildTools" Version="17.*" />
+  </ItemGroup>
+</Project>
+```
+
+Then reference packages without versions in your project:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.VisualStudio.SDK" />
+  <PackageReference Include="Microsoft.VSSDK.BuildTools" PrivateAssets="all" />
+</ItemGroup>
+```
 
 ## 🏗️ Building from Source
 
