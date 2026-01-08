@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Template support for project and item templates with auto-discovery in `ProjectTemplates/` and `ItemTemplates/` folders
+- Auto-injection of `<Content>` entries into vsixmanifest for discovered templates (`AutoInjectVsixTemplateContent` property)
+- Cross-project template references via `VsixTemplateReference` item type
+- Auto-inclusion of `.imagemanifest` files as `ImageManifest` items
+- Auto-inclusion of `ContentManifest.json` files as `Content` items
+- NuGet Central Package Management (CPM) support
+- Build validation warnings for missing manifest Content entries (VSIXSDK011-014)
+
+### Changed
+
+- Removed implicit `PackageReference` for `Microsoft.VSSDK.BuildTools` - users must now explicitly add this reference
+
 ## [0.3.0] - 2025-12-30
 
 ### Added
