@@ -104,6 +104,7 @@ Replace your entire `.csproj` file with the SDK-style format:
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
   </ItemGroup>
 </Project>
 ```
@@ -135,11 +136,10 @@ Convert from `packages.config` to `PackageReference` format in your `.csproj`:
 ```xml
 <ItemGroup>
   <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
   <!-- Add other packages your extension uses -->
 </ItemGroup>
 ```
-
-> **Note:** `Microsoft.VSSDK.BuildTools` is automatically included by the SDK.
 
 #### Step 6: Handle VSCT Files
 
@@ -179,6 +179,7 @@ If you prefer to set up manually, create a `.csproj` file:
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
   </ItemGroup>
 </Project>
 ```
