@@ -17,18 +17,6 @@
               Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\CodingWithCalvin.VsixSdk.Generators.dll')" />
   </ItemGroup>
 
-  <!--
-    Implicit package references for VSIX development.
-    Users can override the version by setting VssdkBuildToolsVersion before SDK import.
-  -->
-  <PropertyGroup>
-    <VssdkBuildToolsVersion Condition="'$(VssdkBuildToolsVersion)' == ''">17.*</VssdkBuildToolsVersion>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(VssdkBuildToolsVersion)" PrivateAssets="all" />
-  </ItemGroup>
-
   <PropertyGroup>
     <!-- Identify that this SDK is in use -->
     <UsingCodingWithCalvinVsixSdk>true</UsingCodingWithCalvinVsixSdk>
