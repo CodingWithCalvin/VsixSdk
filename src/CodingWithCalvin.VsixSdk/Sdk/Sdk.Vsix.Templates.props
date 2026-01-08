@@ -18,6 +18,9 @@
     <!-- Enable/disable automatic template discovery -->
     <EnableDefaultVsixTemplateItems Condition="'$(EnableDefaultVsixTemplateItems)' == ''">true</EnableDefaultVsixTemplateItems>
 
+    <!-- Enable/disable automatic Content entry injection for discovered templates -->
+    <AutoInjectVsixTemplateContent Condition="'$(AutoInjectVsixTemplateContent)' == ''">true</AutoInjectVsixTemplateContent>
+
     <!-- Default folders for template discovery -->
     <VsixProjectTemplatesFolder Condition="'$(VsixProjectTemplatesFolder)' == ''">ProjectTemplates</VsixProjectTemplatesFolder>
     <VsixItemTemplatesFolder Condition="'$(VsixItemTemplatesFolder)' == ''">ItemTemplates</VsixItemTemplatesFolder>

@@ -5,12 +5,20 @@
     Template support for VSIX projects. Handles:
     - Auto-discovery of template folders for validation
     - Copying templates from referenced projects (VsixTemplateReference)
+    - Auto-injection of Content entries into the manifest
     - Validation warnings for manifest configuration
 
     Note: VSSDK handles template packaging when the manifest contains
     <Content><ProjectTemplate/></Content> entries. This file provides
-    discovery, cross-project template support, and validation.
+    discovery, cross-project template support, auto-injection, and validation.
   -->
+
+  <!--
+    Register the custom task for injecting Content entries.
+    UsingTask must be at the top level, outside of any Target.
+  -->
+  <UsingTask TaskName="CodingWithCalvin.VsixSdk.Tasks.InjectVsixManifestContentTask"
+             AssemblyFile="$(MSBuildThisFileDirectory)..\build\CodingWithCalvin.VsixSdk.Tasks.dll" />
 
   <!--
     Auto-discover project and item templates for validation.
@@ -131,6 +139,59 @@
   </Target>
 
   <!--
+    Target: InjectVsixTemplateContent
+    Injects Content entries for discovered templates into an intermediate manifest.
+    Runs AFTER template discovery and BEFORE VSSDK processes the manifest.
+  -->
+  <Target Name="InjectVsixTemplateContent"
+          BeforeTargets="GetVsixSourceItems"
+          AfterTargets="DiscoverVsixTemplates;CopyVsixTemplateReferences"
+          Condition="'$(AutoInjectVsixTemplateContent)' == 'true' and '$(_SourceVsixManifestPath)' != '' and Exists('$(_SourceVsixManifestPath)')">
+
+    <!-- Compute intermediate manifest path at execution time when $(IntermediateOutputPath) is available -->
+    <PropertyGroup>
+      <_IntermediateVsixManifestPath>$(IntermediateOutputPath)source.extension.vsixmanifest</_IntermediateVsixManifestPath>
+    </PropertyGroup>
+
+    <!-- Determine if we have any templates -->
+    <PropertyGroup>
+      <_HasProjectTemplates Condition="'@(VsixProjectTemplate)' != ''">true</_HasProjectTemplates>
+      <_HasProjectTemplates Condition="'@(VsixTemplateReference->WithMetadataValue('TemplateType', 'Project'))' != ''">true</_HasProjectTemplates>
+      <_HasItemTemplates Condition="'@(VsixItemTemplate)' != ''">true</_HasItemTemplates>
+      <_HasItemTemplates Condition="'@(VsixTemplateReference->WithMetadataValue('TemplateType', 'Item'))' != ''">true</_HasItemTemplates>
+    </PropertyGroup>
+
+    <!-- Only run injection if templates are discovered -->
+    <InjectVsixManifestContentTask
+        SourceManifestPath="$(_SourceVsixManifestPath)"
+        OutputManifestPath="$(_IntermediateVsixManifestPath)"
+        HasProjectTemplates="$(_HasProjectTemplates)"
+        HasItemTemplates="$(_HasItemTemplates)"
+        ProjectTemplatesPath="$(VsixProjectTemplatesFolder)"
+        ItemTemplatesPath="$(VsixItemTemplatesFolder)"
+        Condition="'$(_HasProjectTemplates)' == 'true' or '$(_HasItemTemplates)' == 'true'" />
+
+    <!-- If no templates, just copy the manifest unchanged -->
+    <Copy SourceFiles="$(_SourceVsixManifestPath)"
+          DestinationFiles="$(_IntermediateVsixManifestPath)"
+          SkipUnchangedFiles="true"
+          Condition="'$(_HasProjectTemplates)' != 'true' and '$(_HasItemTemplates)' != 'true'" />
+
+    <!-- Point VSSDK to the intermediate manifest -->
+    <PropertyGroup Condition="Exists('$(_IntermediateVsixManifestPath)')">
+      <VsixSourceManifest>$(_IntermediateVsixManifestPath)</VsixSourceManifest>
+    </PropertyGroup>
+
+    <!-- Update item group so VSSDK picks up intermediate manifest -->
+    <ItemGroup Condition="Exists('$(_IntermediateVsixManifestPath)')">
+      <None Remove="$(_SourceVsixManifestPath)" />
+      <None Include="$(_IntermediateVsixManifestPath)">
+        <SubType>Designer</SubType>
+      </None>
+    </ItemGroup>
+  </Target>
+
+  <!--
     Target: ValidateVsixTemplateReferenceItems
     Warns if VsixTemplateReference items are missing required metadata.
   -->
@@ -151,10 +212,11 @@
     Target: WarnMissingManifestContent
     Warns if templates are discovered but the manifest doesn't have Content entries.
     VSSDK requires these entries to properly package and register templates.
+    Skipped when AutoInjectVsixTemplateContent is enabled (default).
   -->
   <Target Name="WarnMissingManifestContent"
           AfterTargets="DiscoverVsixTemplates;CopyVsixTemplateReferences"
-          Condition="('@(VsixProjectTemplate)' != '' or '@(VsixItemTemplate)' != '' or '@(VsixTemplateReference)' != '') and '$(_SourceVsixManifestPath)' != ''">
+          Condition="'$(AutoInjectVsixTemplateContent)' != 'true' and ('@(VsixProjectTemplate)' != '' or '@(VsixItemTemplate)' != '' or '@(VsixTemplateReference)' != '') and '$(_SourceVsixManifestPath)' != ''">
 
     <!-- Determine if we have any project or item templates -->
     <PropertyGroup>

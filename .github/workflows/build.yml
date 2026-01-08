@@ -87,6 +87,9 @@ jobs:
       - name: Build E2E.AllFeatures
         run: dotnet build tests/e2e/E2E.AllFeatures/E2E.AllFeatures.csproj -c Release
 
+      - name: Build E2E.Templates.AutoInject
+        run: dotnet build tests/e2e/E2E.Templates.AutoInject/E2E.Templates.AutoInject.csproj -c Release
+
       # VSIX Verification - Check that VSIX files contain expected content
       - name: Verify E2E.Minimal VSIX
         run: |
@@ -140,6 +143,16 @@ jobs:
           if ($files -notcontains "extension.vsixmanifest") { throw "Missing extension.vsixmanifest" }
           if ($files -notcontains "E2E.AllFeatures.dll") { throw "Missing E2E.AllFeatures.dll" }
           Write-Host "E2E.AllFeatures VSIX verified successfully"
+
+      - name: Verify E2E.Templates.AutoInject VSIX
+        run: |
+          $vsix = "tests/e2e/E2E.Templates.AutoInject/bin/Release/net472/E2E.Templates.AutoInject.vsix"
+          if (!(Test-Path $vsix)) { throw "VSIX not found: $vsix" }
+          Expand-Archive -Path $vsix -DestinationPath "tests/e2e/E2E.Templates.AutoInject/vsix-contents" -Force
+          $files = Get-ChildItem -Path "tests/e2e/E2E.Templates.AutoInject/vsix-contents" -Recurse | Select-Object -ExpandProperty Name
+          # Verify template was included (Content was auto-injected)
+          if ($files -notcontains "TestProject.vstemplate") { throw "Missing ProjectTemplates/TestProject/TestProject.vstemplate" }
+          Write-Host "E2E.Templates.AutoInject VSIX verified successfully"
 
       - name: Test Template - Install
         run: dotnet new install artifacts/packages/CodingWithCalvin.VsixSdk.Templates.1.0.0.nupkg

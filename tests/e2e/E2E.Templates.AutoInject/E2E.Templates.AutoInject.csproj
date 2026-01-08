@@ -1,0 +1,20 @@
+<!--
+  E2E.Templates.AutoInject - Tests automatic Content injection into manifest.
+
+  Validates:
+  - Templates in ProjectTemplates/ auto-discovered
+  - Content element auto-injected into manifest (not present in source)
+  - Intermediate manifest created with Content entries
+  - Templates included in VSIX at correct paths
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" />
+  </ItemGroup>
+
+</Project>
