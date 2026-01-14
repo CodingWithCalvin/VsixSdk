@@ -81,7 +81,6 @@ jobs:
         [📦 NuGet](https://www.nuget.org/packages/CodingWithCalvin.VsixSdk)
 
         #dotnet #csharp #visualstudio #nuget
-      embed_url: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
       embed_title: CodingWithCalvin.VsixSdk
       embed_description: An MSBuild SDK for modern SDK-style Visual Studio extension development
     secrets:
@@ -101,7 +100,6 @@ jobs:
         📦 NuGet: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
 
         #dotnet #csharp #visualstudio #nuget
-      article_url: https://www.nuget.org/packages/CodingWithCalvin.VsixSdk
       article_title: CodingWithCalvin.VsixSdk
       article_description: An MSBuild SDK for modern SDK-style Visual Studio extension development
     secrets:
